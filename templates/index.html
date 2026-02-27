@@ -1,85 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CurricuForge | AI Curriculum Designer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-
-    <div class="container">
-        <nav>
-            <div class="logo">CurricuForge</div>
-            <div class="nav-links">
-                <button class="glass" style="padding: 0.5rem 1.5rem; border-radius: 99px; background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border);">Documentation</button>
-            </div>
-        </nav>
-
-        <section class="hero">
-            <h1>Craft Your Perfect <br><span style="color: #818cf8;">Curriculum</span> with AI</h1>
-            <p>Generate industry-ready educational blueprints in seconds using IBM's Granite 3.3 2B model. Precise, structured, and tailored to your needs.</p>
-        </section>
-
-        <section class="generator-card glass">
-            <form id="generatorForm" class="form-grid">
-                <div class="input-group full-width">
-                    <label>Skill or Subject Area</label>
-                    <input type="text" id="skill" placeholder="e.g. Full-stack Web Development, Data Science 101" required>
-                </div>
-
-                <div class="input-group">
-                    <label>Education Level</label>
-                    <select id="level">
-                        <option value="beginner">Beginner / K-12</option>
-                        <option value="undergraduate">Undergraduate / College</option>
-                        <option value="graduate">Graduate / Professional</option>
-                        <option value="expert">Expert / Specialized Training</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label>Industry Focus</label>
-                    <input type="text" id="industry" placeholder="e.g. Fintech, Healthcare, Cloud Computing">
-                </div>
-
-                <div class="input-group">
-                    <label>Number of Semesters</label>
-                    <input type="number" id="semesters" min="1" max="12" value="1">
-                </div>
-
-                <div class="input-group">
-                    <label>Weekly Learning Hours</label>
-                    <input type="number" id="hours" min="1" max="60" value="10">
-                </div>
-
-                <div class="input-group full-width" style="margin-top: 1rem;">
-                    <button type="submit" class="primary-btn">Generate Curriculum Blueprint</button>
-                </div>
-            </form>
-        </section>
-
-        <div class="stats">
-            <div class="stat-item">
-                <span class="stat-value">Granite 3.3</span>
-                <span class="stat-label">AI Engine</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value">100%</span>
-                <span class="stat-label">Privacy (Local)</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value">PDF</span>
-                <span class="stat-label">Smart Export</span>
-            </div>
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <header class="hero">
+        <h1>Design Your Future with AI</h1>
+        <p>Generate comprehensive, industry-aligned curricula in seconds using IBM Granite 3.3.</p>
+        <a href="/generate-page" class="btn">Get Started Now</a>
+    </header>
+    
+    <div class="grid">
+        <div class="card">
+            <h3>🚀 Fast Generation</h3>
+            <p>Leverage local LLM power for instant curriculum structures and topic recommendations.</p>
+        </div>
+        <div class="card">
+            <h3>🎯 Industry Focused</h3>
+            <p>Tailored content that aligns with current market demands and skill requirements.</p>
         </div>
     </div>
-
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-</body>
-</html>
+</div>
+{% endblock %}

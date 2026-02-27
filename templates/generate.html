@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <h2>Curriculum Generator</h2>
+        <form id="generatorForm">
+            <div class="form-group">
+                <label for="skill">Primary Skill/Subject</label>
+                <input type="text" id="skill" placeholder="e.g. Data Science" required>
+            </div>
+            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0;">
+                <div class="form-group">
+                    <label for="level">Education Level</label>
+                    <select id="level">
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="industry">Industry Focus</label>
+                    <input type="text" id="industry" placeholder="e.g. Fintech">
+                </div>
+            </div>
+            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0;">
+                <div class="form-group">
+                    <label for="semesters">Semesters</label>
+                    <input type="number" id="semesters" value="1" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="hours">Weekly Hours</label>
+                    <input type="number" id="hours" value="10" min="1">
+                </div>
+            </div>
+            <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Generate Curriculum</button>
+        </form>
+    </div>
+    <div id="resultArea" class="container" style="display:none;">
+        <!-- AI results will be injected here -->
+    </div>
+</div>
+{% endblock %}

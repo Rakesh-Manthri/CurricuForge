@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <header class="hero">
+        <h1>About CurricuForge</h1>
+        <p>Revolutionizing education through local, private, and intelligent curriculum design.</p>
+    </header>
+
+    <div class="grid">
+        <div class="card">
+            <h3>Our Mission</h3>
+            <p>CurricuForge aims to bridge the gap between industry requirements and educational content. By leveraging state-of-the-art AI, we help educators and students create structured learning paths that matter.</p>
+        </div>
+        <div class="card">
+            <h3>The Technology</h3>
+            <p>We utilize <strong>IBM Granite 3.3 2B</strong>, a powerful and efficient language model, running locally via <strong>Ollama</strong>. This ensures high-quality generation without the need for expensive cloud APIs.</p>
+        </div>
+        <div class="card">
+            <h3>Privacy First</h3>
+            <p>Because the AI runs entirely on your hardware, your data and curriculum designs never leave your machine. We believe in private, secure, and accessible AI for everyone.</p>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 2rem; text-align: center;">
+        <h2>Why Choose Us?</h2>
+        <div class="tag-container" style="justify-content: center;">
+            <span class="tag">Local Inference</span>
+            <span class="tag">IBM Granite AI</span>
+            <span class="tag">Open Source</span>
+            <span class="tag">Responsive Design</span>
+            <span class="tag">PDF Export</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
