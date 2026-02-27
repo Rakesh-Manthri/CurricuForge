@@ -1,42 +1,225 @@
-{% extends "layout.html" %}
-{% block content %}
-<div class="container">
-    <div class="card" style="max-width: 600px; margin: 0 auto;">
-        <h2>Curriculum Generator</h2>
-        <form id="generatorForm">
-            <div class="form-group">
-                <label for="skill">Primary Skill/Subject</label>
-                <input type="text" id="skill" placeholder="e.g. Data Science" required>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Curriculum | CurricuForge</title>
+    <meta name="description"
+        content="Generate a personalized AI-powered curriculum using IBM Granite 3.3 2B. Fill in your parameters and get a complete syllabus instantly.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="container">
+            <div class="nav-inner">
+                <a href="/" class="nav-logo">
+                    <div class="nav-logo-icon">⚒</div>
+                    <span class="nav-logo-text">CurricuForge</span>
+                </a>
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/generate" class="active">Generate</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+                <a href="/generate" class="btn btn-primary btn-sm nav-cta">Get Started →</a>
+                <button class="hamburger" id="hamburger" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
             </div>
-            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0;">
-                <div class="form-group">
-                    <label for="level">Education Level</label>
-                    <select id="level">
-                        <option value="beginner">Beginner</option>
-                        <option value="intermediate">Intermediate</option>
-                        <option value="advanced">Advanced</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="industry">Industry Focus</label>
-                    <input type="text" id="industry" placeholder="e.g. Fintech">
-                </div>
-            </div>
-            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0;">
-                <div class="form-group">
-                    <label for="semesters">Semesters</label>
-                    <input type="number" id="semesters" value="1" min="1">
-                </div>
-                <div class="form-group">
-                    <label for="hours">Weekly Hours</label>
-                    <input type="number" id="hours" value="10" min="1">
-                </div>
-            </div>
-            <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Generate Curriculum</button>
-        </form>
+        </div>
+    </header>
+
+    <!-- PAGE HERO -->
+    <div class="page-hero">
+        <div class="container">
+            <div class="badge badge-primary" style="margin:0 auto 1rem;">AI-Powered Generator</div>
+            <h1 class="heading-lg animate-fade-up">Design Your Curriculum</h1>
+            <p class="text-muted mt-2 animate-fade-up-delay-1"
+                style="font-size:1.0625rem; max-width:560px; margin:0.75rem auto 0;">Fill in your educational parameters
+                and let IBM Granite 3.3 2B craft a structured, industry-aligned curriculum for you.</p>
+        </div>
     </div>
-    <div id="resultArea" class="container" style="display:none;">
-        <!-- AI results will be injected here -->
-    </div>
-</div>
-{% endblock %}
+
+    <section class="section" style="padding:3rem 0 5rem;">
+        <div class="container">
+            <div style="display:grid; grid-template-columns:1.1fr 1fr; gap:2.5rem; align-items:start;">
+
+                <!-- FORM PANEL -->
+                <div class="card animate-fade-up">
+                    <div class="card-body">
+                        <!-- Step Tabs -->
+                        <div class="step-tabs">
+                            <button class="step-tab active" data-step="0" id="tab-0">1 · Basics</button>
+                            <button class="step-tab" data-step="1" id="tab-1">2 · Learning</button>
+                            <button class="step-tab" data-step="2" id="tab-2">3 · Industry</button>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="progressBar" style="width:33%;"></div>
+                        </div>
+
+                        <form id="curricForm" novalidate>
+
+                            <!-- Step 0: Basics -->
+                            <div class="form-step" id="step-0">
+                                <div class="form-section-title">Core Parameters</div>
+                                <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                                    <div class="form-group">
+                                        <label class="form-label">Subject / Skill Area <span
+                                                class="required">*</span></label>
+                                        <input class="form-control" id="skill" type="text"
+                                            placeholder="e.g. Machine Learning, Full-Stack Dev, Data Science" required>
+                                    </div>
+                                    <div class="form-grid-2">
+                                        <div class="form-group">
+                                            <label class="form-label">Education Level <span
+                                                    class="required">*</span></label>
+                                            <select class="form-control" id="level">
+                                                <option value="beginner">Beginner / K-12</option>
+                                                <option value="undergraduate" selected>Undergraduate</option>
+                                                <option value="graduate">Graduate</option>
+                                                <option value="expert">Expert / Professional</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Semesters <span class="required">*</span></label>
+                                            <input class="form-control" id="semesters" type="number" min="1" max="12"
+                                                value="4">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Weekly Learning Hours</label>
+                                        <input class="form-control" id="hours" type="number" min="1" max="80"
+                                            value="15">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 1: Learning -->
+                            <div class="form-step hidden" id="step-1">
+                                <div class="form-section-title">Learning Preferences</div>
+                                <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                                    <div class="form-group">
+                                        <label class="form-label">Learning Goals</label>
+                                        <textarea class="form-control" id="goals"
+                                            placeholder="e.g. Become job-ready for software engineering roles, build real-world projects..."></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Prior Knowledge</label>
+                                        <input class="form-control" id="priorKnowledge" type="text"
+                                            placeholder="e.g. Basic Python, High school math, No prior experience">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Preferred Learning Style</label>
+                                        <select class="form-control" id="style">
+                                            <option value="balanced">Balanced (Theory + Practice)</option>
+                                            <option value="practical">Heavily Practical</option>
+                                            <option value="theoretical">Theoretical / Research</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Industry -->
+                            <div class="form-step hidden" id="step-2">
+                                <div class="form-section-title">Industry and Domain Focus</div>
+                                <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                                    <div class="form-group">
+                                        <label class="form-label">Industry Sector</label>
+                                        <input class="form-control" id="industry" type="text"
+                                            placeholder="e.g. Healthcare, Fintech, E-commerce, EdTech">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Highlight Topic Tags</label>
+                                        <p class="text-sm text-muted" style="margin-bottom:0.5rem;">Click to select
+                                            topics to emphasize in the curriculum.</p>
+                                        <div class="tag-cloud" id="topicTagCloud">
+                                            <span class="topic-tag topic-tag-purple"
+                                                data-topic="Algorithms">Algorithms</span>
+                                            <span class="topic-tag topic-tag-cyan" data-topic="APIs">APIs</span>
+                                            <span class="topic-tag topic-tag-amber" data-topic="Data Structures">Data
+                                                Structures</span>
+                                            <span class="topic-tag topic-tag-emerald"
+                                                data-topic="Databases">Databases</span>
+                                            <span class="topic-tag topic-tag-purple"
+                                                data-topic="Machine Learning">Machine Learning</span>
+                                            <span class="topic-tag topic-tag-cyan" data-topic="Cloud">Cloud</span>
+                                            <span class="topic-tag topic-tag-amber"
+                                                data-topic="Security">Security</span>
+                                            <span class="topic-tag topic-tag-emerald" data-topic="DevOps">DevOps</span>
+                                            <span class="topic-tag topic-tag-purple" data-topic="NLP">NLP</span>
+                                            <span class="topic-tag topic-tag-cyan" data-topic="Mobile Dev">Mobile
+                                                Dev</span>
+                                            <span class="topic-tag topic-tag-amber" data-topic="UI/UX">UI/UX</span>
+                                            <span class="topic-tag topic-tag-emerald"
+                                                data-topic="Networking">Networking</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Additional Notes</label>
+                                        <textarea class="form-control" id="notes"
+                                            placeholder="Any special requirements, certifications to target..."
+                                            style="min-height:80px;"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Navigation Buttons -->
+                            <div class="flex-between mt-4">
+                                <button type="button" class="btn btn-ghost" id="prevBtn"
+                                    style="visibility:hidden;">Back</button>
+                                <button type="button" class="btn btn-primary" id="nextBtn">Next Step</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+                <!-- OUTPUT PANEL -->
+                <div class="output-panel animate-fade-up-delay-1" id="outputPanel">
+                    <div class="output-panel-header">
+                        <div>
+                            <div style="font-weight:700;font-size:0.9375rem;color:var(--text-heading);">Curriculum
+                                Output</div>
+                            <div class="text-sm text-muted">Generated by IBM Granite 3.3 2B</div>
+                        </div>
+                        <button class="btn btn-sm btn-secondary hidden" id="exportBtn">Export PDF</button>
+                    </div>
+                    <div class="output-panel-body" id="outputBody">
+                        <div class="placeholder-empty">
+                            <div class="icon">🎓</div>
+                            <div style="font-size:1rem;font-weight:600;color:var(--text-muted);">Your Curriculum Will
+                                Appear Here</div>
+                            <p class="text-sm" style="max-width:280px;line-height:1.6;">Fill in the form parameters and
+                                click <strong>Generate Curriculum</strong> to get your AI-powered syllabus.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-bottom" style="padding:2rem 0; border-top:1px solid rgba(255,255,255,0.08);">
+                <span>2026 CurricuForge. All rights reserved.</span>
+                <div style="display:flex; gap:1rem;">
+                    <a href="/" style="font-size:0.875rem;">Home</a>
+                    <a href="/about" style="font-size:0.875rem;">About</a>
+                    <a href="/contact" style="font-size:0.875rem;">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/generate.js') }}"></script>
+</body>
+
+</html>

@@ -1,0 +1,72 @@
+/* ================================================
+   main.js — Shared across all pages
+   ================================================ */
+
+// ---------- Hamburger Menu ----------
+const hamburger = document.getElementById('hamburger');
+const navLinks = document.getElementById('navLinks');
+if (hamburger && navLinks) {
+    hamburger.addEventListener('click', () => {
+        navLinks.classList.toggle('open');
+        const spans = hamburger.querySelectorAll('span');
+        const isOpen = navLinks.classList.contains('open');
+        spans[0].style.transform = isOpen ? 'rotate(45deg) translate(5px, 5px)' : '';
+        spans[1].style.opacity = isOpen ? '0' : '1';
+        spans[2].style.transform = isOpen ? 'rotate(-45deg) translate(5px, -5px)' : '';
+    });
+}
+
+// ---------- Scroll-triggered reveal animations ----------
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ---------- Navbar scroll shadow ----------
+const navbar = document.querySelector('.navbar');
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 20) {
+        navbar.style.boxShadow = '0 4px 20px rgba(99,102,241,0.08)';
+    } else {
+        navbar.style.boxShadow = 'none';
+    }
+}, { passive: true });
+
+// ---------- Topic tag toggle (shared) ----------
+document.querySelectorAll('.topic-tag[data-topic], .topic-tag[data-tag]').forEach(tag => {
+    tag.addEventListener('click', () => tag.classList.toggle('active'));
+});
+
+// ---------- Animate hero numbers ----------
+function animateCounters() {
+    document.querySelectorAll('[data-count]').forEach(el => {
+        const target = parseFloat(el.dataset.count);
+        const isFloat = target % 1 !== 0;
+        const duration = 1800;
+        const start = performance.now();
+        function update(now) {
+            const elapsed = Math.min((now - start) / duration, 1);
+            const ease = 1 - Math.pow(1 - elapsed, 3);
+            el.textContent = isFloat
+                ? (ease * target).toFixed(1)
+                : Math.floor(ease * target).toLocaleString();
+            if (elapsed < 1) requestAnimationFrame(update);
+        }
+        requestAnimationFrame(update);
+    });
+}
+
+const heroObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+        animateCounters();
+        heroObserver.disconnect();
+    }
+}, { threshold: 0.3 });
+
+const heroStats = document.querySelector('.hero-stats');
+if (heroStats) heroObserver.observe(heroStats);

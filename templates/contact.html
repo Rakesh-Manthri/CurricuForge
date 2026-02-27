@@ -1,43 +1,245 @@
-{% extends "layout.html" %}
-{% block content %}
-<div class="container">
-    <header class="hero">
-        <h1>Contact Us</h1>
-        <p>Have questions or suggestions? We'd love to hear from you.</p>
-    </header>
+<!DOCTYPE html>
+<html lang="en">
 
-    <div class="grid">
-        <div class="card">
-            <h3>Send a Message</h3>
-            <form id="contactForm">
-                <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" placeholder="John Doe" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" placeholder="john@example.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="message">Message</label>
-                    <textarea id="message" rows="5" style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; outline: none; font-family: inherit;" placeholder="How can we help?"></textarea>
-                </div>
-                <button type="submit" class="btn" style="width: 100%;">Send Message</button>
-            </form>
-        </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact | CurricuForge</title>
+    <meta name="description"
+        content="Get in touch with the CurricuForge team. We'd love to hear your feedback, questions, or collaboration ideas.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
 
-        <div class="card">
-            <h3>Contact Info</h3>
-            <p><strong>Email:</strong><br>support@curricuforge.ai</p>
-            <p><strong>GitHub:</strong><br><a href="https://github.com/Rakesh-Manthri/CurricuForge" style="color: #6366f1; text-decoration: none;">Project Repository</a></p>
-            <p><strong>Location:</strong><br>Global / Remote</p>
-            
-            <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e2e8f0;">
-                <p style="font-size: 0.875rem; color: var(--text-muted);">
-                    CurricuForge is an open-source project dedicated to advancing educational technology.
-                </p>
+<body>
+
+    <header class="navbar">
+        <div class="container">
+            <div class="nav-inner">
+                <a href="/" class="nav-logo">
+                    <div class="nav-logo-icon">⚒</div>
+                    <span class="nav-logo-text">CurricuForge</span>
+                </a>
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/generate">Generate</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/contact" class="active">Contact</a></li>
+                </ul>
+                <a href="/generate" class="btn btn-primary btn-sm nav-cta">Get Started</a>
+                <button class="hamburger" id="hamburger" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
             </div>
         </div>
+    </header>
+
+    <div class="page-hero">
+        <div class="container text-center">
+            <div class="badge badge-warm" style="margin:0 auto 1rem;">Get in Touch</div>
+            <h1 class="heading-lg animate-fade-up">Contact Us</h1>
+            <p class="text-muted mt-2 animate-fade-up-delay-1"
+                style="font-size:1.0625rem; max-width:540px; margin:0.75rem auto 0;">
+                Have questions, feedback, or collaboration ideas? We'd love to hear from you.
+            </p>
+        </div>
     </div>
-</div>
-{% endblock %}
+
+    <section class="section">
+        <div class="container">
+            <div class="contact-grid">
+
+                <!-- Contact Info -->
+                <div class="reveal">
+                    <div class="contact-info-card">
+                        <h2 class="heading-sm" style="margin-bottom:0.5rem;">Let's Connect</h2>
+                        <p class="text-muted text-sm" style="margin-bottom:0.5rem; line-height:1.7;">Whether you're an
+                            educator, developer, or student — we're happy to help.</p>
+
+                        <div class="contact-item">
+                            <div class="contact-item-icon icon-purple">📧</div>
+                            <div>
+                                <div style="font-weight:600; font-size:0.875rem; color:var(--text-heading);">Email</div>
+                                <div class="text-sm text-muted">curricuforge@example.com</div>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-item-icon icon-cyan">🐙</div>
+                            <div>
+                                <div style="font-weight:600; font-size:0.875rem; color:var(--text-heading);">GitHub
+                                </div>
+                                <div class="text-sm text-muted">github.com/Rakesh-Manthri/CurricuForge</div>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-item-icon icon-emerald">📍</div>
+                            <div>
+                                <div style="font-weight:600; font-size:0.875rem; color:var(--text-heading);">Location
+                                </div>
+                                <div class="text-sm text-muted">Hyderabad, India</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border);">
+                            <div
+                                style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-subtle); margin-bottom:0.75rem;">
+                                Follow the Project</div>
+                            <div class="social-links">
+                                <a href="#" class="social-btn" title="GitHub">🐙</a>
+                                <a href="#" class="social-btn" title="LinkedIn">💼</a>
+                                <a href="#" class="social-btn" title="Twitter">🐦</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        style="margin-top:1.5rem; padding:1.5rem; background:linear-gradient(135deg, rgba(99,102,241,0.06), rgba(6,182,212,0.06)); border:1px solid rgba(99,102,241,0.1); border-radius:var(--radius-lg);">
+                        <div
+                            style="font-weight:700; font-size:0.9375rem; color:var(--text-heading); margin-bottom:0.5rem;">
+                            Typical Response Time</div>
+                        <div style="font-size:0.875rem; color:var(--text-muted);">We aim to respond within <strong
+                                style="color:var(--primary-start);">24–48 hours</strong>. For urgent queries, reach out
+                            via GitHub Issues directly.</div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="card contact-form-card reveal reveal-delay-1">
+                    <div id="successToast" class="success-toast">
+                        ✅ Message sent! We'll get back to you soon.
+                    </div>
+
+                    <h2 class="heading-sm" style="margin-bottom:1.5rem;">Send a Message</h2>
+
+                    <form id="contactForm" novalidate style="display:flex; flex-direction:column; gap:1.25rem;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="contactName">Full Name <span
+                                        class="required">*</span></label>
+                                <input class="form-control" id="contactName" type="text" placeholder="Your full name"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="contactEmail">Email <span
+                                        class="required">*</span></label>
+                                <input class="form-control" id="contactEmail" type="email" placeholder="you@example.com"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="contactSubject">Subject</label>
+                            <select class="form-control" id="contactSubject">
+                                <option value="">Choose a topic...</option>
+                                <option value="feedback">Feedback / Suggestion</option>
+                                <option value="bug">Bug Report</option>
+                                <option value="feature">Feature Request</option>
+                                <option value="collaboration">Collaboration</option>
+                                <option value="general">General Question</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="contactMessage">Message <span
+                                    class="required">*</span></label>
+                            <textarea class="form-control" id="contactMessage"
+                                placeholder="Tell us what's on your mind..." style="min-height:140px;"
+                                required></textarea>
+                        </div>
+
+                        <!-- Topic Tags for categorization -->
+                        <div class="form-group">
+                            <label class="form-label">Relevant Area (Optional)</label>
+                            <div class="tag-cloud" id="contactTags">
+                                <span class="topic-tag topic-tag-purple" data-tag="AI Model">AI Model</span>
+                                <span class="topic-tag topic-tag-cyan" data-tag="UI/UX">UI/UX</span>
+                                <span class="topic-tag topic-tag-amber" data-tag="PDF Export">PDF Export</span>
+                                <span class="topic-tag topic-tag-emerald" data-tag="Curriculum Quality">Curriculum
+                                    Quality</span>
+                                <span class="topic-tag topic-tag-purple" data-tag="Performance">Performance</span>
+                                <span class="topic-tag topic-tag-cyan" data-tag="Documentation">Documentation</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full" id="contactSubmitBtn">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-sm" style="background:white; padding:4rem 0;">
+        <div class="container">
+            <div class="section-header reveal" style="margin-bottom:2rem;">
+                <div class="section-label">FAQ</div>
+                <h2 class="heading-md">Frequently Asked Questions</h2>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;" class="reveal">
+                <div class="glass-card" style="padding:1.5rem 2rem;">
+                    <h4 style="font-weight:700; color:var(--text-heading); margin-bottom:0.5rem;">Is CurricuForge free
+                        to use?</h4>
+                    <p class="text-sm text-muted" style="line-height:1.7;">Yes! CurricuForge is completely free. The
+                        only requirement is downloading Ollama and the Granite model (a one-time local setup).</p>
+                </div>
+                <div class="glass-card" style="padding:1.5rem 2rem;">
+                    <h4 style="font-weight:700; color:var(--text-heading); margin-bottom:0.5rem;">Does it need an
+                        internet connection?</h4>
+                    <p class="text-sm text-muted" style="line-height:1.7;">Only for initial setup. Once the Granite
+                        model is downloaded, everything runs 100% offline on your local machine.</p>
+                </div>
+                <div class="glass-card" style="padding:1.5rem 2rem;">
+                    <h4 style="font-weight:700; color:var(--text-heading); margin-bottom:0.5rem;">Can I customize the
+                        generated curriculum?</h4>
+                    <p class="text-sm text-muted" style="line-height:1.7;">Yes! You can adjust the topic tags, learning
+                        style, semesters, and industry focus to guide AI output to your exact needs.</p>
+                </div>
+                <div class="glass-card" style="padding:1.5rem 2rem;">
+                    <h4 style="font-weight:700; color:var(--text-heading); margin-bottom:0.5rem;">What formats are
+                        supported for export?</h4>
+                    <p class="text-sm text-muted" style="line-height:1.7;">Currently PDF export is supported via
+                        ReportLab. Additional export formats (DOCX, JSON) are on the roadmap.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo nav-logo" style="margin-bottom:0.75rem;">
+                        <div class="nav-logo-icon">⚒</div>
+                        <span class="nav-logo-text">CurricuForge</span>
+                    </div>
+                    <p class="footer-desc">An intelligent curriculum design platform powered by IBM Granite 3.3 2B.
+                        Completely local, completely private.</p>
+                </div>
+                <div class="footer-col">
+                    <div class="footer-col-title">Platform</div>
+                    <ul class="footer-links">
+                        <li><a href="/generate">Generate</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <div class="footer-col-title">Tech Stack</div>
+                    <ul class="footer-links">
+                        <li><a href="#">IBM Granite 3.3 2B</a></li>
+                        <li><a href="#">Ollama</a></li>
+                        <li><a href="#">Flask</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>2026 CurricuForge. All rights reserved.</span>
+                <span>MIT License</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/contact.js') }}"></script>
+</body>
+
+</html>

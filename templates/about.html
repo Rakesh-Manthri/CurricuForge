@@ -1,35 +1,267 @@
-{% extends "layout.html" %}
-{% block content %}
-<div class="container">
-    <header class="hero">
-        <h1>About CurricuForge</h1>
-        <p>Revolutionizing education through local, private, and intelligent curriculum design.</p>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | CurricuForge</title>
+    <meta name="description"
+        content="Learn about CurricuForge — the AI-powered curriculum design system built on IBM Granite 3.3 2B and Ollama.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <header class="navbar">
+        <div class="container">
+            <div class="nav-inner">
+                <a href="/" class="nav-logo">
+                    <div class="nav-logo-icon">⚒</div>
+                    <span class="nav-logo-text">CurricuForge</span>
+                </a>
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/generate">Generate</a></li>
+                    <li><a href="/about" class="active">About</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+                <a href="/generate" class="btn btn-primary btn-sm nav-cta">Get Started</a>
+                <button class="hamburger" id="hamburger" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
     </header>
 
-    <div class="grid">
-        <div class="card">
-            <h3>Our Mission</h3>
-            <p>CurricuForge aims to bridge the gap between industry requirements and educational content. By leveraging state-of-the-art AI, we help educators and students create structured learning paths that matter.</p>
-        </div>
-        <div class="card">
-            <h3>The Technology</h3>
-            <p>We utilize <strong>IBM Granite 3.3 2B</strong>, a powerful and efficient language model, running locally via <strong>Ollama</strong>. This ensures high-quality generation without the need for expensive cloud APIs.</p>
-        </div>
-        <div class="card">
-            <h3>Privacy First</h3>
-            <p>Because the AI runs entirely on your hardware, your data and curriculum designs never leave your machine. We believe in private, secure, and accessible AI for everyone.</p>
+    <div class="page-hero">
+        <div class="container text-center">
+            <div class="badge badge-accent" style="margin:0 auto 1rem;">Our Story</div>
+            <h1 class="heading-lg animate-fade-up">About CurricuForge</h1>
+            <p class="text-muted mt-2 animate-fade-up-delay-1"
+                style="font-size:1.0625rem; max-width:600px; margin:0.75rem auto 0;">
+                Transforming curriculum design through the power of local AI inference — fast, private, and intelligent.
+            </p>
         </div>
     </div>
 
-    <div class="card" style="margin-top: 2rem; text-align: center;">
-        <h2>Why Choose Us?</h2>
-        <div class="tag-container" style="justify-content: center;">
-            <span class="tag">Local Inference</span>
-            <span class="tag">IBM Granite AI</span>
-            <span class="tag">Open Source</span>
-            <span class="tag">Responsive Design</span>
-            <span class="tag">PDF Export</span>
+    <section class="section" style="background:white;">
+        <div class="container">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center;">
+                <div class="reveal">
+                    <div class="section-label">Our Mission</div>
+                    <h2 class="heading-lg" style="margin-bottom:1.25rem;">Democratizing Quality Education through AI
+                    </h2>
+                    <p style="color:var(--text-muted); line-height:1.8; margin-bottom:1rem;">
+                        CurricuForge was built to solve a fundamental challenge in education: designing a structured,
+                        effective, and industry-relevant curriculum is incredibly time-consuming and expertise-heavy.
+                    </p>
+                    <p style="color:var(--text-muted); line-height:1.8; margin-bottom:1rem;">
+                        We leverage IBM's Granite 3.3 2B model running locally via Ollama to analyze educational goals
+                        and output complete, coherent syllabi tailored to individual learners, institutions, and
+                        industries.
+                    </p>
+                    <p style="color:var(--text-muted); line-height:1.8;">
+                        Our platform is completely self-contained. No data ever leaves your machine, respecting both
+                        privacy and sovereignty.
+                    </p>
+                </div>
+                <div class="reveal reveal-delay-1">
+                    <div class="glass-card" style="padding:2.5rem;">
+                        <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                            <div style="display:flex; gap:1rem; align-items:flex-start;">
+                                <div class="feature-icon icon-purple" style="flex-shrink:0;">🎯</div>
+                                <div>
+                                    <div style="font-weight:700; color:var(--text-heading); margin-bottom:0.25rem;">
+                                        Precision</div>
+                                    <div style="font-size:0.9rem; color:var(--text-muted);">AI-generated curricula that
+                                        precisely match your skill level, goals, and industry domain.</div>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:1rem; align-items:flex-start;">
+                                <div class="feature-icon icon-cyan" style="flex-shrink:0;">⚡</div>
+                                <div>
+                                    <div style="font-weight:700; color:var(--text-heading); margin-bottom:0.25rem;">
+                                        Speed</div>
+                                    <div style="font-size:0.9rem; color:var(--text-muted);">Generate complete
+                                        semester-wise syllabi in seconds, not hours of manual planning.</div>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:1rem; align-items:flex-start;">
+                                <div class="feature-icon icon-emerald" style="flex-shrink:0;">🔒</div>
+                                <div>
+                                    <div style="font-weight:700; color:var(--text-heading); margin-bottom:0.25rem;">
+                                        Privacy</div>
+                                    <div style="font-size:0.9rem; color:var(--text-muted);">Fully local execution. Your
+                                        data stays on your machine — always.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-{% endblock %}
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-label">Core Technologies</div>
+                <h2 class="heading-lg">Built on a Solid Foundation</h2>
+                <p>CurricuForge brings together best-in-class technologies for an intelligent curriculum design
+                    experience.</p>
+            </div>
+            <div class="tech-grid reveal">
+                <div class="tech-card">
+                    <div class="tech-icon">🧠</div>
+                    <h4>IBM Granite 3.3 2B</h4>
+                    <p>State-of-the-art language model for intelligent curriculum generation and analysis.</p>
+                    <span class="badge badge-primary" style="margin-top:0.75rem;">AI Core</span>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">🦙</div>
+                    <h4>Ollama</h4>
+                    <p>Local LLM runtime enabling fast, private inference without cloud dependencies.</p>
+                    <span class="badge badge-accent" style="margin-top:0.75rem;">Runtime</span>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">🐍</div>
+                    <h4>Flask</h4>
+                    <p>Lightweight Python web framework handling routing, APIs, and request processing.</p>
+                    <span class="badge badge-warm" style="margin-top:0.75rem;">Backend</span>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">🌐</div>
+                    <h4>HTML5 / CSS3 / JS</h4>
+                    <p>Modern, responsive frontend with smooth animations and glassmorphism design.</p>
+                    <span class="badge badge-success" style="margin-top:0.75rem;">Frontend</span>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">📄</div>
+                    <h4>ReportLab</h4>
+                    <p>Professional PDF generation for exporting finalized curriculum documents.</p>
+                    <span class="badge badge-primary" style="margin-top:0.75rem;">Export</span>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">🔧</div>
+                    <h4>Python Algorithms</h4>
+                    <p>Custom logic for curriculum structure, validation, and quality assurance.</p>
+                    <span class="badge badge-accent" style="margin-top:0.75rem;">Logic</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="background:white;">
+        <div class="container">
+            <div style="display:grid; grid-template-columns:1fr 1.3fr; gap:5rem; align-items:start;">
+                <div class="reveal">
+                    <div class="section-label">Development Journey</div>
+                    <h2 class="heading-md" style="margin-bottom:1rem;">How CurricuForge Was Built</h2>
+                    <p style="color:var(--text-muted); line-height:1.8;">
+                        From concept to production, engineered with a focus on local-first AI, educational expertise,
+                        and premium user experience.
+                    </p>
+                    <div
+                        style="margin-top:2rem; padding:1.5rem; background:var(--gradient-card); border:1px solid rgba(99,102,241,0.12); border-radius:var(--radius-lg);">
+                        <div
+                            style="font-size:0.8125rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--primary-start); margin-bottom:0.75rem;">
+                            Hardware Requirements</div>
+                        <div
+                            style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.875rem; color:var(--text-muted);">
+                            <div style="display:flex; justify-content:space-between;"><span>Processor</span><strong
+                                    style="color:var(--text-heading);">Intel i5 / Ryzen 5+</strong></div>
+                            <div style="display:flex; justify-content:space-between;"><span>RAM</span><strong
+                                    style="color:var(--text-heading);">8GB (16GB recommended)</strong></div>
+                            <div style="display:flex; justify-content:space-between;"><span>Storage</span><strong
+                                    style="color:var(--text-heading);">10GB Free Space</strong></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline reveal reveal-delay-1">
+                    <div class="timeline-item">
+                        <h3 style="font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">Research and
+                            Planning</h3>
+                        <p style="font-size:0.9rem; color:var(--text-muted);">Deep-dived into educational curriculum
+                            design, learning outcomes, and IBM Granite model capabilities.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3 style="font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">AI Integration
+                        </h3>
+                        <p style="font-size:0.9rem; color:var(--text-muted);">Integrated Granite 3.3 2B via Ollama REST
+                            API. Built prompt engineering pipelines for structured content generation.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3 style="font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">Backend
+                            Development</h3>
+                        <p style="font-size:0.9rem; color:var(--text-muted);">Flask API with routing, validation,
+                            curriculum structuring algorithms, and PDF generation.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3 style="font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">Frontend and UX
+                            Design</h3>
+                        <p style="font-size:0.9rem; color:var(--text-muted);">Modern light-theme interface with
+                            glassmorphism, gradient design system, and smooth micro-animations.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3 style="font-weight:700; color:var(--text-heading); margin-bottom:0.35rem;">Testing and
+                            Launch</h3>
+                        <p style="font-size:0.9rem; color:var(--text-muted);">Validated output quality across 10+ skill
+                            domains and optimized inference performance.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-sm">
+        <div class="container">
+            <div class="cta-section reveal">
+                <h2>Start Forging Your Curriculum</h2>
+                <p>Experience AI-powered curriculum design — fully local, completely free.</p>
+                <div class="cta-actions">
+                    <a href="/generate" class="btn btn-white btn-lg">Open Generator</a>
+                    <a href="/contact" class="btn btn-outline-white btn-lg">Get in Touch</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo nav-logo" style="margin-bottom:0.75rem;">
+                        <div class="nav-logo-icon">⚒</div>
+                        <span class="nav-logo-text">CurricuForge</span>
+                    </div>
+                    <p class="footer-desc">An intelligent curriculum design platform powered by IBM Granite 3.3 2B.
+                        Completely local, completely private.</p>
+                </div>
+                <div class="footer-col">
+                    <div class="footer-col-title">Platform</div>
+                    <ul class="footer-links">
+                        <li><a href="/generate">Generate</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <div class="footer-col-title">Tech Stack</div>
+                    <ul class="footer-links">
+                        <li><a href="#">IBM Granite 3.3 2B</a></li>
+                        <li><a href="#">Ollama</a></li>
+                        <li><a href="#">Flask</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>2026 CurricuForge. Built with IBM Granite.</span>
+                <span>MIT License</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>
