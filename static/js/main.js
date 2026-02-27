@@ -27,15 +27,27 @@ const revealObserver = new IntersectionObserver((entries) => {
 
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
-// ---------- Navbar scroll shadow ----------
+// ---------- Navbar scroll behavior ----------
 const navbar = document.querySelector('.navbar');
-window.addEventListener('scroll', () => {
-    if (window.scrollY > 20) {
-        navbar.style.boxShadow = '0 4px 20px rgba(99,102,241,0.08)';
-    } else {
-        navbar.style.boxShadow = 'none';
-    }
-}, { passive: true });
+if (navbar) {
+    let lastScrollY = window.scrollY;
+    navbar.style.transition = 'transform 0.3s ease-out, box-shadow 0.3s ease-out';
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 20) {
+            navbar.style.boxShadow = '0 4px 20px rgba(99,102,241,0.08)';
+        } else {
+            navbar.style.boxShadow = 'none';
+        }
+
+        if (window.scrollY > lastScrollY && window.scrollY > 100) {
+            navbar.style.transform = 'translateY(-100%)';
+        } else {
+            navbar.style.transform = 'translateY(0)';
+        }
+        lastScrollY = window.scrollY < 0 ? 0 : window.scrollY;
+    }, { passive: true });
+}
 
 // ---------- Topic tag toggle (shared) ----------
 document.querySelectorAll('.topic-tag[data-topic], .topic-tag[data-tag]').forEach(tag => {

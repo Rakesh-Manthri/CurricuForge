@@ -75,7 +75,7 @@
    ```bash
    python app.py
    ```
-   Access the platform at `http://127.0.0.1:5000`.
+   Access the platform at `http://127.0.0.1:5001`.
 
 ---
 
