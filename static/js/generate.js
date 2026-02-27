@@ -113,6 +113,38 @@ async function generateCurriculum() {
     }
 }
 
+function parseSemesterData(text, semesterIndex) {
+    // Regex for <<SEMESTER X>> blocks
+    const pattern = new RegExp(`<<SEMESTER ${semesterIndex}>>([\\s\\S]*?)(?=<<SEMESTER|$)`, 'i');
+    const match = text.match(pattern);
+
+    if (!match || !match[1]) return null;
+
+    const content = match[1];
+
+    // Extract Title
+    let title = 'Semester ' + semesterIndex;
+    const titleMatch = content.match(/TITLE:\s*(.*?)(?=\n|TOPICS:|DETAILS:|$)/i);
+    if (titleMatch) title = titleMatch[1].trim();
+
+    // Extract Topics: Split by commas, semi-colons, or newlines
+    let topics = [];
+    const topicsMatch = content.match(/TOPICS:\s*(.*?)(?=\n|DETAILS:|$)/i);
+    if (topicsMatch) {
+        topics = topicsMatch[1]
+            .split(/[,\n;]/)
+            .map(t => t.trim().replace(/^[\d.-]+/, '').trim()) // remove numbering if present
+            .filter(t => t.length > 2 && t.length < 100);
+    }
+
+    // Extract Details
+    let details = '';
+    const detailsMatch = content.match(/DETAILS:\s*([\s\S]*?)$/i);
+    if (detailsMatch) details = detailsMatch[1].trim();
+
+    return { title, topics, details };
+}
+
 function renderOutput(result, payload) {
     const levelLabels = {
         beginner: 'Beginner / K-12',
@@ -121,18 +153,34 @@ function renderOutput(result, payload) {
         expert: 'Expert / Professional'
     };
 
-    // Build demo semester cards if AI result is a placeholder
+    const aiText = result.message || '';
+    console.log("Raw AI Text:", aiText); // Useful for debugging
+
+    // Extract overview from <<OVERVIEW>> tag
+    const overviewMatch = aiText.match(/<<OVERVIEW>>([\s\S]*?)(?=<<SEMESTER|$)/i);
+    const summary = (overviewMatch && overviewMatch[1]) ? overviewMatch[1].trim() : 'Curriculum generated.';
+
     let semesterHTML = '';
     const semCount = payload.semesters || 2;
+
     for (let i = 1; i <= semCount; i++) {
+        const data = parseSemesterData(aiText, i);
+
+        const displayTitle = data ? data.title : `Semester ${i}`;
+        const displayTopics = (data && data.topics.length > 0) ? data.topics : ['General Core Topics', 'Foundations', 'Skills Training'];
+        const displayDetails = data ? data.details : 'Focus on core principles and fundamental techniques relevant to the subject area.';
+
         semesterHTML += `
       <div class="semester-card">
-        <h4>
+        <h4 style="margin-bottom:0.5rem;">
           <span style="width:28px;height:28px;border-radius:50%;background:var(--gradient-primary);color:white;font-size:0.75rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">${i}</span>
-          Semester ${i}
+          ${displayTitle}
         </h4>
-        <div class="tag-cloud">
-          ${getDemoTopics(payload.skill, i).map(t => `<span class="topic-tag topic-tag-${tagColor(i)} active">${t}</span>`).join('')}
+        <div style="font-size:0.875rem; color:var(--text-body); margin-bottom:1rem; line-height:1.6; padding-left:2.25rem; opacity:0.9;">
+          ${displayDetails}
+        </div>
+        <div class="tag-cloud" style="padding-left:2.25rem;">
+          ${displayTopics.map(t => `<span class="topic-tag topic-tag-${tagColor(i)} active">${t}</span>`).join('')}
         </div>
       </div>`;
     }
@@ -141,30 +189,19 @@ function renderOutput(result, payload) {
     <div style="display:flex; flex-direction:column; gap:1.25rem;">
       <div style="padding:1rem 1.25rem; background:linear-gradient(135deg,rgba(99,102,241,0.06),rgba(6,182,212,0.06)); border:1px solid rgba(99,102,241,0.12); border-radius:12px;">
         <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--primary-start);margin-bottom:0.75rem;">Curriculum Overview</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.875rem;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.875rem; margin-bottom:1rem;">
           <div><span style="color:var(--text-muted);">Subject:</span> <strong style="color:var(--text-heading);">${payload.skill}</strong></div>
           <div><span style="color:var(--text-muted);">Level:</span> <strong style="color:var(--text-heading);">${levelLabels[payload.level]}</strong></div>
           <div><span style="color:var(--text-muted);">Semesters:</span> <strong style="color:var(--text-heading);">${payload.semesters}</strong></div>
           <div><span style="color:var(--text-muted);">Hrs/week:</span> <strong style="color:var(--text-heading);">${payload.hours}</strong></div>
-          ${payload.industry ? `<div style="grid-column:span 2;"><span style="color:var(--text-muted);">Industry:</span> <strong style="color:var(--text-heading);">${payload.industry}</strong></div>` : ''}
         </div>
-        ${result.message ? `<div style="margin-top:0.75rem; padding:0.75rem; background:white; border-radius:8px; font-size:0.875rem; color:var(--text-muted); line-height:1.6;"><strong>AI Note:</strong> ${result.message}</div>` : ''}
+        <div style="padding:0.875rem; background:white; border:1px solid var(--border); border-radius:10px; font-size:0.9rem; color:var(--text-body); line-height:1.6; border-left:4px solid var(--primary-start);">
+          ${summary}
+        </div>
       </div>
-      <div style="font-size:0.8125rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-subtle);">Semester Breakdown</div>
+      <div style="font-size:0.8125rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-subtle);">Detailed Semester Breakdown</div>
       ${semesterHTML}
     </div>`;
-}
-
-function getDemoTopics(skill, semester) {
-    const allTopics = {
-        1: ['Foundations', 'Core Concepts', 'Intro Tools', 'Safety & Ethics'],
-        2: ['Intermediate Theory', 'Practical Labs', 'Mini Projects', 'Assessment'],
-        3: ['Advanced Topics', 'Industry Patterns', 'Research Methods', 'Peer Review'],
-        4: ['Capstone Project', 'Portfolio Building', 'Case Studies', 'Career Prep'],
-        5: ['Specialization', 'Expert Techniques', 'Leadership', 'Publication'],
-        6: ['Research Thesis', 'Innovation Lab', 'Industry Collab', 'Presentation']
-    };
-    return allTopics[semester] || ['Advanced Study', 'Projects', 'Review', 'Exams'];
 }
 
 function tagColor(semester) {

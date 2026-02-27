@@ -57,8 +57,19 @@ def build_prompt(skill, level, semesters, hours, industry, goals, style, selecte
     - Key Topics to Include: {', '.join(selected_topics) if selected_topics else 'General core topics'}
     - Additional Context: {notes}
 
-    Format the response as a professional summary followed by a clear breakdown of topics for each of the {semesters} semesters. 
-    Keep the tone educational and encouraging.
+    Format the response EXACTLY as follows for clarity and parsing:
+    
+    <<OVERVIEW>>
+    A professional, encouraging summary of the entire curriculum (max 3 sentences).
+    
+    <<SEMESTER X>>
+    TITLE: (Descriptive name for semester X)
+    TOPICS: (4-6 topics, comma separated)
+    DETAILS: (2-3 sentences explaining learning outcomes)
+    
+    (Repeat the <<SEMESTER X>> block for all {semesters} semesters)
+    
+    Keep the tone educational, professional, and industry-aligned.
     """
     return prompt
 
