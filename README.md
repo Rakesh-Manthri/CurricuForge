@@ -74,7 +74,11 @@
    ```bash
    uvicorn app:app --reload
    ```
+<<<<<<< HEAD
    Access the platform at `http://127.0.0.1:8000`.
+=======
+   Access the platform at `http://127.0.0.1:5001`.
+>>>>>>> 7985ae0d17c47dc108dc870aa9bc1cbf771b2d41
 
 ---
 

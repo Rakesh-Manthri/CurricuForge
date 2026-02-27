@@ -42,6 +42,62 @@
 
     --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* --- Dark Mode Variables (Base) --- */
+    --bg-dark: #0f172a;
+    --surface-dark: #1e293b;
+    --surface-2-dark: #334155;
+    --border-dark: #334155;
+    --text-heading-dark: #f8fafc;
+    --text-body-dark: #cbd5e1;
+    --text-muted-dark: #94a3b8;
+    /* --- Footer Variables --- */
+    --footer-bg: #0f172a;
+    --footer-text: rgba(255, 255, 255, 0.7);
+}
+
+/* --- Dark Mode Overrides --- */
+body.dark-mode {
+    --bg: var(--bg-dark);
+    --surface: var(--surface-dark);
+    --surface-2: var(--surface-2-dark);
+    --border: var(--border-dark);
+    --text-heading: var(--text-heading-dark);
+    --text-body: var(--text-body-dark);
+    --text-muted: var(--text-muted-dark);
+    --gradient-hero: linear-gradient(150deg, #020617 0%, #0f172a 40%, #171717 100%);
+    --footer-bg: #020617;
+}
+
+body.dark-mode .navbar {
+    background: rgba(15, 23, 42, 0.85);
+    border-bottom-color: var(--border-dark);
+}
+
+body.dark-mode .card,
+body.dark-mode .glass-card {
+    background: rgba(30, 41, 59, 0.7);
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .nav-links a:hover,
+body.dark-mode .nav-links a.active {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode select option {
+    background: var(--surface-dark);
+    color: white;
+}
+
+body.dark-mode .step-card,
+body.dark-mode .tech-card {
+    background: var(--surface-dark);
+}
+
+body.dark-mode .form-control {
+    background: var(--surface-2-dark);
+    color: white;
 }
 
 /* --- Reset & Base --- */
@@ -262,8 +318,40 @@ a {
     font-weight: 600;
 }
 
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
 .nav-cta {
-    margin-left: 1rem;
+    margin-left: 0.5rem;
+}
+
+.theme-toggle {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-heading);
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: var(--transition);
+}
+
+.theme-toggle:hover {
+    background: var(--border);
+    transform: translateY(-2px);
+}
+
+body.dark-mode .theme-toggle {
+    background: var(--surface-2-dark);
+    border-color: var(--border-dark);
+    color: #fbbf24;
 }
 
 .hamburger {
@@ -823,7 +911,7 @@ textarea.form-control {
 }
 
 .hero-card-main {
-    background: white;
+    background: var(--surface);
     border-radius: var(--radius-xl);
     padding: 2rem;
     box-shadow: var(--shadow-lg);
@@ -832,11 +920,11 @@ textarea.form-control {
 
 .hero-card-float {
     position: absolute;
-    background: white;
+    background: var(--surface);
     border-radius: var(--radius-lg);
     padding: 1rem 1.25rem;
     box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
-    border: 1px solid rgba(99, 102, 241, 0.1);
+    border: 1px solid var(--border);
     font-size: 0.875rem;
     font-weight: 600;
     display: flex;
@@ -1041,7 +1129,7 @@ textarea.form-control {
 }
 
 .step-tab.active {
-    background: white;
+    background: var(--surface);
     color: var(--primary-start);
     box-shadow: var(--shadow-sm);
 }
@@ -1201,7 +1289,7 @@ textarea.form-control {
     height: 12px;
     border-radius: 50%;
     background: var(--gradient-primary);
-    border: 2px solid white;
+    border: 2px solid var(--surface);
     box-shadow: var(--shadow-sm);
 }
 
@@ -1387,9 +1475,10 @@ textarea.form-control {
    FOOTER
    ================================================ */
 footer {
-    background: var(--text-heading);
-    color: rgba(255, 255, 255, 0.7);
+    background: var(--footer-bg);
+    color: var(--footer-text);
     padding: 4rem 0 2rem;
+    transition: var(--transition);
 }
 
 .footer-grid {
