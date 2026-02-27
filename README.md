@@ -2,10 +2,10 @@
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.8%2B-brightgreen.svg)
-![Framework](https://img.shields.io/badge/framework-Flask-red.svg)
+![Framework](https://img.shields.io/badge/framework-FastAPI-009688.svg)
 ![AI Model](https://img.shields.io/badge/AI_Model-IBM_Granite_3.3_2B-orange.svg)
 
-**CurricuForge** is an intelligent curriculum design platform that leverages IBM's **Granite 3.3 2B** AI model (via Ollama) to provides comprehensive educational curriculum generation and planning recommendations. The platform addresses the challenge of accurate curriculum design by delivering AI-powered insights, detailed course structures, topic recommendations, and semester-wise syllabi.
+**CurricuForge** is an intelligent curriculum design platform that leverages IBM's **Granite 3.3 2B** AI model (via Ollama) to provides comprehensive educational curriculum generation and planning recommendations.
 
 ---
 
@@ -24,7 +24,6 @@
 
 - **Flask**: Lightweight Python web framework for backend routing and logic.
 - **IBM Granite 3.3 2B**: State-of-the-art local AI model for intelligent generation.
-- **Ollama**: Local runtime for high-performance LLM execution.
 - **HTML5/CSS3/JavaScript**: Modern frontend with a focus on UX and responsiveness.
 - **ReportLab**: Integration for professional PDF document generation.
 - **Python Algorithms**: Sophisticated logic for curriculum structure and validation.
@@ -39,7 +38,7 @@
 - **Git**: [Download here](https://git-scm.com/)
 - **Granite 3.3 2B Model**: Pre-downloaded via Ollama:
   ```bash
-  ollama pull granite:3.3-2b
+  ollama pull granite3.3:2b
   ```
 
 ### Hardware Requirements
@@ -73,9 +72,13 @@
 
 5. **Run the Application**
    ```bash
-   python app.py
+   uvicorn app:app --reload
    ```
+<<<<<<< HEAD
+   Access the platform at `http://127.0.0.1:8000`.
+=======
    Access the platform at `http://127.0.0.1:5001`.
+>>>>>>> 7985ae0d17c47dc108dc870aa9bc1cbf771b2d41
 
 ---
 
