@@ -119,9 +119,6 @@
 
                 <!-- Contact Form -->
                 <div class="card contact-form-card reveal reveal-delay-1">
-                    <div id="successToast" class="success-toast">
-                        ✅ Message sent! We'll get back to you soon.
-                    </div>
 
                     <h2 class="heading-sm" style="margin-bottom:1.5rem;">Send a Message</h2>
 
@@ -240,17 +237,21 @@
                 <div class="footer-col">
                     <div class="footer-col-title">Tech Stack</div>
                     <ul class="footer-links">
-                        <li><a href="#">IBM Granite 3.3 2B</a></li>
-                        <li><a href="#">Ollama</a></li>
-                        <li><a href="#">FastAPI</a></li>
-                        <li><a href="#">ReportLab</a></li>
+                        <li><a href="https://ollama.com/library/granite3.3:2b" target="_blank"
+                                rel="noopener noreferrer">IBM Granite 3.3 2B</a></li>
+                        <li><a href="https://ollama.com/" target="_blank" rel="noopener noreferrer">Ollama</a></li>
+                        <li><a href="https://fastapi.tiangolo.com/" target="_blank"
+                                rel="noopener noreferrer">FastAPI</a></li>
+                        <li><a href="https://www.reportlab.com/" target="_blank" rel="noopener noreferrer">ReportLab</a>
+                        </li>
                     </ul>
                 </div>
                 <div class="footer-col">
                     <div class="footer-col-title">Resources</div>
                     <ul class="footer-links">
                         <li><a href="#">Documentation</a></li>
-                        <li><a href="#">GitHub</a></li>
+                        <li><a href="https://github.com/Rakesh-Manthri/CurricuForge" target="_blank"
+                                rel="noopener noreferrer">GitHub</a></li>
                     </ul>
                 </div>
             </div>
@@ -260,6 +261,8 @@
             </div>
         </div>
     </footer>
+
+    <div id="notificationContainer" class="notification-container"></div>
 
     <script src="{{ url_for('static', path='js/main.js') }}"></script>
     <script src="{{ url_for('static', path='js/contact.js') }}"></script>

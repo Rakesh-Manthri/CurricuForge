@@ -3,6 +3,7 @@
    ================================================ */
 
 let currentStep = 0;
+let maxStepReached = 0;
 const totalSteps = 3;
 
 const steps = document.querySelectorAll('.form-step');
@@ -14,6 +15,8 @@ const outputBody = document.getElementById('outputBody');
 const exportBtn = document.getElementById('exportBtn');
 
 function goToStep(index) {
+    if (index > maxStepReached) return;
+
     steps.forEach((s, i) => s.classList.toggle('hidden', i !== index));
     tabs.forEach((t, i) => t.classList.toggle('active', i === index));
     prevBtn.style.visibility = index === 0 ? 'hidden' : 'visible';
@@ -35,6 +38,8 @@ function goToStep(index) {
 nextBtn.addEventListener('click', () => {
     if (currentStep === 0) {
         const skill = document.getElementById('skill').value.trim();
+        const semesters = parseInt(document.getElementById('semesters').value);
+
         if (!skill) {
             document.getElementById('skill').focus();
             document.getElementById('skill').style.borderColor = '#ef4444';
@@ -45,8 +50,25 @@ nextBtn.addEventListener('click', () => {
             }, 2000);
             return;
         }
+
+        if (isNaN(semesters) || semesters < 1 || semesters > 12) {
+            document.getElementById('semesters').focus();
+            showNotification("Invalid Semesters", "Please enter a value between 1 and 12.", "error");
+            return;
+        }
+
+        const hours = parseInt(document.getElementById('hours').value);
+        if (isNaN(hours) || hours <= 0) {
+            document.getElementById('hours').focus();
+            showNotification("Invalid Hours", "Weekly learning hours must be greater than 0.", "error");
+            return;
+        }
     }
     if (currentStep < totalSteps - 1) {
+        if (currentStep + 1 > maxStepReached) {
+            maxStepReached = currentStep + 1;
+            tabs[maxStepReached].classList.remove('disabled');
+        }
         goToStep(currentStep + 1);
     } else {
         generateCurriculum();
@@ -58,7 +80,11 @@ prevBtn.addEventListener('click', () => {
 });
 
 tabs.forEach((tab, i) => {
-    tab.addEventListener('click', () => goToStep(i));
+    tab.addEventListener('click', () => {
+        if (i <= maxStepReached) {
+            goToStep(i);
+        }
+    });
 });
 
 async function generateCurriculum() {
@@ -99,6 +125,9 @@ async function generateCurriculum() {
         const result = await response.json();
         renderOutput(result, payload);
         exportBtn.classList.remove('hidden');
+
+        // Success Notification
+        showNotification("Curriculum Generated", "Your tailored syllabus is ready for review.");
     } catch (err) {
         outputBody.innerHTML = `
       <div class="placeholder-empty">

@@ -102,3 +102,40 @@ const heroObserver = new IntersectionObserver(entries => {
 
 const heroStats = document.querySelector('.hero-stats');
 if (heroStats) heroObserver.observe(heroStats);
+
+// ---------- Toast Notification (Shared) ----------
+function showNotification(title, message, type = 'success') {
+    let container = document.getElementById('notificationContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'notificationContainer';
+        container.className = 'notification-container';
+        document.body.appendChild(container);
+    }
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    const icon = type === 'success' ? '✨' : (type === 'error' ? '⚠️' : 'ℹ️');
+
+    notification.innerHTML = `
+        <div class="notification-icon">${icon}</div>
+        <div class="notification-content">
+            <div class="notification-title">${title}</div>
+            <div class="notification-message">${message}</div>
+        </div>
+    `;
+    container.appendChild(notification);
+
+    // Slide in
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+
+    // Slide out and remove
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            notification.remove();
+        }, 500);
+    }, 4500);
+}

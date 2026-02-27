@@ -2,9 +2,7 @@
    contact.js — Contact form handling
    ================================================ */
 
-const contactForm = document.getElementById('contactForm');
 const submitBtn = document.getElementById('contactSubmitBtn');
-const successToast = document.getElementById('successToast');
 
 // Tag toggles
 document.querySelectorAll('#contactTags .topic-tag').forEach(tag => {
@@ -32,6 +30,18 @@ if (contactForm) {
                     }, { once: true });
                 }
             });
+            showNotification("Missing Fields", "Please fill in all required fields.", "error");
+            return;
+        }
+
+        // Email regex validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            const el = document.getElementById('contactEmail');
+            el.focus();
+            el.style.borderColor = '#ef4444';
+            el.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.12)';
+            showNotification("Invalid Email", "Please enter a valid email address.", "error");
             return;
         }
 
@@ -42,12 +52,10 @@ if (contactForm) {
         // Simulate submission (replace with real endpoint)
         await new Promise(r => setTimeout(r, 1400));
 
-        successToast.classList.add('show');
+        showNotification("Message Sent", "We've received your message and will get back to you soon!");
         contactForm.reset();
         document.querySelectorAll('#contactTags .topic-tag').forEach(t => t.classList.remove('active'));
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
-
-        setTimeout(() => successToast.classList.remove('show'), 5000);
     });
 }
