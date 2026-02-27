@@ -139,3 +139,80 @@ function showNotification(title, message, type = 'success') {
         }, 500);
     }, 4500);
 }
+
+// ---------- Auth-aware Navbar ----------
+(async function updateNavbarAuth() {
+    try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        const navActions = document.querySelector('.nav-actions');
+        const ctaBtn = navActions ? navActions.querySelector('.nav-cta') : null;
+
+        if (data.user && ctaBtn) {
+            const initials = data.user.full_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
+            ctaBtn.outerHTML = `
+            <div class="nav-user-menu" style="position:relative;">
+                <button class="nav-user-btn" id="navUserBtn" style="display:flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(6,182,212,0.08));border:1px solid rgba(99,102,241,0.15);border-radius:10px;padding:0.35rem 0.8rem;cursor:pointer;font-family:inherit;">
+                    <span style="width:28px;height:28px;border-radius:50%;background:var(--gradient-primary);color:white;font-size:0.7rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">${initials}</span>
+                    <span style="font-size:0.8rem;font-weight:600;color:var(--text-heading);">${data.user.full_name.split(' ')[0]}</span>
+                    <span style="font-size:0.6rem;color:var(--text-muted);">▼</span>
+                </button>
+                <div class="nav-user-dropdown" id="navUserDropdown" style="display:none;position:absolute;top:calc(100% + 6px);right:0;background:white;border:1px solid var(--border);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.1);padding:0.5rem;min-width:180px;z-index:100;">
+                    <div style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);margin-bottom:0.25rem;">
+                        <div style="font-size:0.8rem;font-weight:600;color:var(--text-heading);">${data.user.full_name}</div>
+                        <div style="font-size:0.7rem;color:var(--text-muted);">${data.user.email}</div>
+                    </div>
+                    <a href="/generate" style="display:block;padding:0.4rem 0.75rem;font-size:0.8rem;color:var(--text-body);text-decoration:none;border-radius:8px;" onmouseenter="this.style.background='rgba(99,102,241,0.06)'" onmouseleave="this.style.background=''">🎓 Generate</a>
+                    <a href="/analysis" style="display:block;padding:0.4rem 0.75rem;font-size:0.8rem;color:var(--text-body);text-decoration:none;border-radius:8px;" onmouseenter="this.style.background='rgba(99,102,241,0.06)'" onmouseleave="this.style.background=''">🔍 Analysis</a>
+                    <button id="navSignOutBtn" style="display:block;width:100%;text-align:left;padding:0.4rem 0.75rem;font-size:0.8rem;color:#ef4444;background:none;border:none;cursor:pointer;border-radius:8px;font-family:inherit;margin-top:0.25rem;border-top:1px solid var(--border);padding-top:0.5rem;" onmouseenter="this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.background=''">🚪 Sign Out</button>
+                </div>
+            </div>`;
+
+            // Toggle dropdown
+            const userBtn = document.getElementById('navUserBtn');
+            const dropdown = document.getElementById('navUserDropdown');
+            if (userBtn && dropdown) {
+                userBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                });
+                document.addEventListener('click', () => dropdown.style.display = 'none');
+            }
+
+            // Sign out
+            const signOutBtn = document.getElementById('navSignOutBtn');
+            if (signOutBtn) {
+                signOutBtn.addEventListener('click', async () => {
+                    await fetch('/api/auth/signout', { method: 'POST' });
+                    localStorage.removeItem('cf_user');
+                    sessionStorage.removeItem('cf_welcomed');
+                    window.location.href = '/';
+                });
+            }
+
+            // Welcome toast (show once per session)
+            if (!sessionStorage.getItem('cf_welcomed')) {
+                sessionStorage.setItem('cf_welcomed', '1');
+                setTimeout(() => {
+                    showNotification('Welcome back!', `Signed in as ${data.user.full_name}`, 'success');
+                }, 300);
+            }
+        } else if (!data.user && ctaBtn) {
+            // Check if we're on signup/signin page — show the opposite link
+            const path = window.location.pathname;
+            if (path === '/signup') {
+                ctaBtn.href = '/signin';
+                ctaBtn.textContent = 'Sign In →';
+            } else if (path === '/signin') {
+                ctaBtn.href = '/signup';
+                ctaBtn.textContent = 'Sign Up →';
+            } else {
+                ctaBtn.href = '/signin';
+                ctaBtn.textContent = 'Sign In →';
+            }
+        }
+    } catch (e) {
+        console.warn('Auth check failed:', e);
+    }
+})();

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curriculum Analysis | CurricuForge</title>
+    <meta name="description"
+        content="Deep-dive analysis of your AI-generated curriculum. Explore courses in detail and chat with the AI advisor.">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    <style>
+        .analysis-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        /* ── Course Detail Panel ─────────────────────────── */
+        .detail-panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .detail-panel-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(6, 182, 212, 0.04));
+        }
+
+        .detail-panel-body {
+            padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .semester-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .semester-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .semester-header:hover .semester-badge {
+            transform: scale(1.05);
+        }
+
+        .semester-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .semester-title-text {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+
+        .semester-toggle {
+            margin-left: auto;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            transition: transform 0.2s ease;
+        }
+
+        .semester-toggle.open {
+            transform: rotate(180deg);
+        }
+
+        .course-detail-card {
+            padding: 1rem 1.25rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-left: 3px solid var(--primary-start);
+            transition: box-shadow 0.2s ease;
+        }
+
+        .course-detail-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .course-detail-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-heading);
+            margin-bottom: 0.35rem;
+        }
+
+        .course-meta {
+            display: flex;
+            gap: 0.4rem;
+            margin-bottom: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .course-meta .badge {
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 700;
+        }
+
+        .course-detail-desc {
+            font-size: 0.84rem;
+            color: var(--text-body);
+            line-height: 1.65;
+            margin-bottom: 0.6rem;
+        }
+
+        .course-topics-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+
+        .course-topics-list li {
+            padding: 0.15rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: rgba(99, 102, 241, 0.08);
+            color: var(--primary-start);
+        }
+
+        /* ── Chat Panel ──────────────────────────────────── */
+        .chat-panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 5rem;
+            max-height: 80vh;
+        }
+
+        .chat-panel-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.04), rgba(6, 182, 212, 0.04));
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            min-height: 300px;
+            max-height: 55vh;
+        }
+
+        .chat-msg {
+            max-width: 85%;
+            padding: 0.75rem 1rem;
+            border-radius: 14px;
+            font-size: 0.84rem;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .chat-msg.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #6366f1, #818cf8);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-msg.bot {
+            align-self: flex-start;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-body);
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-msg.bot .msg-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--primary-start);
+            margin-bottom: 0.3rem;
+        }
+
+        .chat-msg.typing {
+            align-self: flex-start;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .chat-input-area {
+            padding: 0.875rem 1.25rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+            font-family: inherit;
+            background: var(--bg-main);
+            color: var(--text-body);
+            resize: none;
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary-start);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .chat-send-btn {
+            padding: 0.6rem 1.25rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: opacity 0.2s ease, transform 0.1s ease;
+            white-space: nowrap;
+        }
+
+        .chat-send-btn:hover {
+            opacity: 0.9;
+        }
+
+        .chat-send-btn:active {
+            transform: scale(0.97);
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Quick action chips */
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            padding: 0.75rem 1.25rem;
+            border-top: 1px solid var(--border);
+            background: rgba(248, 250, 252, 0.5);
+        }
+
+        .quick-chip {
+            padding: 0.3rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-chip:hover {
+            border-color: var(--primary-start);
+            color: var(--primary-start);
+            background: rgba(99, 102, 241, 0.04);
+        }
+
+        /* ── No data state ───────────────────────────────── */
+        .no-data {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .no-data .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .analysis-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-panel {
+                position: static;
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="container">
+            <div class="nav-inner">
+                <a href="/" class="nav-logo">
+                    <div class="nav-logo-icon">⚒</div>
+                    <span class="nav-logo-text">CurricuForge</span>
+                </a>
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/generate">Generate</a></li>
+                    <li><a href="/analysis" class="active">Analysis</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">🌙</button>
+                    <a href="/signin" class="btn btn-primary btn-sm nav-cta">Sign In →</a>
+                </div>
+                <button class="hamburger" id="hamburger" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- PAGE HERO -->
+    <div class="page-hero">
+        <div class="container">
+            <div class="badge badge-primary" style="margin:0 auto 1rem;">Deep Dive</div>
+            <h1 class="heading-lg animate-fade-up">Curriculum Analysis</h1>
+            <p class="text-muted mt-2 animate-fade-up-delay-1"
+                style="font-size:1.0625rem; max-width:560px; margin:0.75rem auto 0;">
+                Explore every course in detail and chat with the AI to refine your learning path.
+            </p>
+        </div>
+    </div>
+
+    <section class="section" style="padding:2rem 0 5rem;">
+        <div class="container">
+            <div class="analysis-layout" id="analysisLayout">
+
+                <!-- COURSE DETAILS PANEL -->
+                <div class="detail-panel animate-fade-up">
+                    <div class="detail-panel-header">
+                        <div style="font-weight:700;font-size:0.9375rem;color:var(--text-heading);">📚 Course Details
+                        </div>
+                        <div class="text-sm text-muted">Click a semester to expand / collapse</div>
+                    </div>
+                    <div class="detail-panel-body" id="courseDetailBody">
+                        <div class="no-data">
+                            <div class="icon">📋</div>
+                            <div style="font-weight:600;color:var(--text-muted);">No Curriculum Loaded</div>
+                            <p class="text-sm" style="max-width:300px;margin:0.5rem auto;">
+                                <a href="/generate" style="color:var(--primary-start);font-weight:600;">Generate a
+                                    curriculum</a> first, then click Analyze to explore it here.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHAT PANEL -->
+                <div class="chat-panel animate-fade-up-delay-1">
+                    <div class="chat-panel-header">
+                        <div style="font-weight:700;font-size:0.9375rem;color:var(--text-heading);">💬 Curriculum
+                            Advisor</div>
+                        <div class="text-sm text-muted">Ask questions or request modifications</div>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-msg bot">
+                            <div class="msg-label">AI Advisor</div>
+                            Hi! I'm your curriculum advisor. I have full context of your generated curriculum. Ask me
+                            anything — course details, topic explanations, or suggest changes you'd like to make.
+                        </div>
+                    </div>
+                    <div class="quick-actions" id="quickActions">
+                        <span class="quick-chip" data-msg="Explain the learning progression across semesters">📈
+                            Learning Path</span>
+                        <span class="quick-chip" data-msg="What prerequisites should I have before starting?">📋
+                            Prerequisites</span>
+                        <span class="quick-chip" data-msg="Suggest additional elective courses">➕ More Courses</span>
+                        <span class="quick-chip" data-msg="How does this align with industry demands?">🏢 Industry
+                            Fit</span>
+                        <span class="quick-chip" data-msg="What projects should I build alongside this curriculum?">🛠️
+                            Projects</span>
+                    </div>
+                    <div class="chat-input-area">
+                        <textarea class="chat-input" id="chatInput" placeholder="Ask about courses, suggest changes..."
+                            rows="1"></textarea>
+                        <button class="chat-send-btn" id="chatSendBtn">Send →</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo nav-logo" style="margin-bottom:0.75rem;">
+                        <div class="nav-logo-icon">⚒</div>
+                        <span class="nav-logo-text">CurricuForge</span>
+                    </div>
+                    <p class="footer-desc">An intelligent curriculum design platform powered by IBM Granite 3.3 2B.</p>
+                </div>
+                <div class="footer-col">
+                    <div class="footer-col-title">Platform</div>
+                    <ul class="footer-links">
+                        <li><a href="/generate">Generate</a></li>
+                        <li><a href="/analysis">Analysis</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <div class="footer-col-title">Tech Stack</div>
+                    <ul class="footer-links">
+                        <li><a href="https://ollama.com/library/granite3.3:2b" target="_blank">IBM Granite 3.3 2B</a>
+                        </li>
+                        <li><a href="https://ollama.com/" target="_blank">Ollama</a></li>
+                        <li><a href="https://fastapi.tiangolo.com/" target="_blank">FastAPI</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <div class="footer-col-title">Resources</div>
+                    <ul class="footer-links">
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="https://github.com/Rakesh-Manthri/CurricuForge" target="_blank">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 CurricuForge. Built using IBM Granite.</span>
+                <span>MIT License</span>
+            </div>
+        </div>
+    </footer>
+
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <script src="{{ url_for('static', path='js/main.js') }}"></script>
+    <script src="{{ url_for('static', path='js/analysis.js') }}"></script>
+</body>
+
+</html>
