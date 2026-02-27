@@ -54,6 +54,26 @@ document.querySelectorAll('.topic-tag[data-topic], .topic-tag[data-tag]').forEac
     tag.addEventListener('click', () => tag.classList.toggle('active'));
 });
 
+// ---------- Dark Mode Toggle ----------
+const themeToggle = document.getElementById('themeToggle');
+const body = document.body;
+
+// Check for saved theme preference
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') {
+    body.classList.add('dark-mode');
+    if (themeToggle) themeToggle.innerHTML = '☀️';
+}
+
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        const isDark = body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        themeToggle.innerHTML = isDark ? '☀️' : '🌙';
+    });
+}
+
 // ---------- Animate hero numbers ----------
 function animateCounters() {
     document.querySelectorAll('[data-count]').forEach(el => {
