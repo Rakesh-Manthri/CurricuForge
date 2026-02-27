@@ -104,7 +104,7 @@ async function generateCurriculum() {
       <div class="placeholder-empty">
         <div class="icon">⚠️</div>
         <div style="font-weight:600; color:#ef4444;">Connection Error</div>
-        <p class="text-sm" style="max-width:280px;">Could not reach the backend. Is the Flask server running? Is Ollama active?</p>
+        <p class="text-sm" style="max-width:280px;">Could not reach the backend. Is the FastAPI server running? Is Ollama active?</p>
       </div>`;
     } finally {
         nextBtn.disabled = false;
@@ -153,36 +153,46 @@ function renderOutput(result, payload) {
         expert: 'Expert / Professional'
     };
 
-    const aiText = result.message || '';
-    console.log("Raw AI Text:", aiText); // Useful for debugging
+    let curriculumContentHTML = '';
 
-    // Extract overview from <<OVERVIEW>> tag
-    const overviewMatch = aiText.match(/<<OVERVIEW>>([\s\S]*?)(?=<<SEMESTER|$)/i);
-    const summary = (overviewMatch && overviewMatch[1]) ? overviewMatch[1].trim() : 'Curriculum generated.';
+    if (result.status === "success" && result.curriculum) {
+        const curriculum = result.curriculum;
 
-    let semesterHTML = '';
-    const semCount = payload.semesters || 2;
+        // Professional Summary
+        curriculumContentHTML += `
+            <div class="curriculum-summary">
+                <h3 class="heading-sm" style="margin-bottom:0.5rem;">Professional Summary</h3>
+                <p>${curriculum.summary}</p>
+            </div>
+        `;
 
-    for (let i = 1; i <= semCount; i++) {
-        const data = parseSemesterData(aiText, i);
-
-        const displayTitle = data ? data.title : `Semester ${i}`;
-        const displayTopics = (data && data.topics.length > 0) ? data.topics : ['General Core Topics', 'Foundations', 'Skills Training'];
-        const displayDetails = data ? data.details : 'Focus on core principles and fundamental techniques relevant to the subject area.';
-
-        semesterHTML += `
-      <div class="semester-card">
-        <h4 style="margin-bottom:0.5rem;">
-          <span style="width:28px;height:28px;border-radius:50%;background:var(--gradient-primary);color:white;font-size:0.75rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">${i}</span>
-          ${displayTitle}
-        </h4>
-        <div style="font-size:0.875rem; color:var(--text-body); margin-bottom:1rem; line-height:1.6; padding-left:2.25rem; opacity:0.9;">
-          ${displayDetails}
-        </div>
-        <div class="tag-cloud" style="padding-left:2.25rem;">
-          ${displayTopics.map(t => `<span class="topic-tag topic-tag-${tagColor(i)} active">${t}</span>`).join('')}
-        </div>
-      </div>`;
+        // Semester Breakdown
+        curriculumContentHTML += `
+            <div style="font-size:0.8125rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-subtle);margin-top:1.5rem; margin-bottom:1rem;">Detailed Semester Breakdown</div>
+        `;
+        curriculum.semesters.forEach(semester => {
+            curriculumContentHTML += `
+                <div class="semester-card">
+                    <h4 style="margin-bottom:0.5rem;">
+                        <span style="width:28px;height:28px;border-radius:50%;background:var(--gradient-primary);color:white;font-size:0.75rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">${semester.number}</span>
+                        ${semester.title}
+                    </h4>
+                    <div style="font-size:0.875rem; color:var(--text-body); margin-bottom:1rem; line-height:1.6; padding-left:2.25rem; opacity:0.9;">
+                        ${semester.details}
+                    </div>
+                    <div class="tag-cloud" style="padding-left:2.25rem;">
+                        ${semester.topics.map(t => `<span class="topic-tag topic-tag-${tagColor(semester.number)} active">${t}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        });
+    } else {
+        // Fallback for when AI result is not successful or curriculum is missing
+        curriculumContentHTML = `
+            <div style="margin-top:0.75rem; padding:0.75rem; background:white; border-radius:8px; font-size:0.875rem; color:var(--text-muted); line-height:1.6;">
+                <strong>AI Note:</strong> ${result.message || 'Failed to generate a structured curriculum.'}
+            </div>
+        `;
     }
 
     outputBody.innerHTML = `
@@ -194,13 +204,10 @@ function renderOutput(result, payload) {
           <div><span style="color:var(--text-muted);">Level:</span> <strong style="color:var(--text-heading);">${levelLabels[payload.level]}</strong></div>
           <div><span style="color:var(--text-muted);">Semesters:</span> <strong style="color:var(--text-heading);">${payload.semesters}</strong></div>
           <div><span style="color:var(--text-muted);">Hrs/week:</span> <strong style="color:var(--text-heading);">${payload.hours}</strong></div>
-        </div>
-        <div style="padding:0.875rem; background:white; border:1px solid var(--border); border-radius:10px; font-size:0.9rem; color:var(--text-body); line-height:1.6; border-left:4px solid var(--primary-start);">
-          ${summary}
+          ${payload.industry ? `<div style="grid-column:span 2;"><span style="color:var(--text-muted);">Industry:</span> <strong style="color:var(--text-heading);">${payload.industry}</strong></div>` : ''}
         </div>
       </div>
-      <div style="font-size:0.8125rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-subtle);">Detailed Semester Breakdown</div>
-      ${semesterHTML}
+      ${curriculumContentHTML}
     </div>`;
 }
 

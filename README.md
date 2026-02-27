@@ -21,8 +21,7 @@
 ---
 
 ## 🚀 Core Technologies
-
-- **Flask**: Lightweight Python web framework for backend routing and logic.
+- **FastAPI**: Modern, fast (high-performance) web framework for building APIs with Python 3.7+ based on standard Python type hints.
 - **IBM Granite 3.3 2B**: State-of-the-art local AI model for intelligent generation.
 - **HTML5/CSS3/JavaScript**: Modern frontend with a focus on UX and responsiveness.
 - **ReportLab**: Integration for professional PDF document generation.
