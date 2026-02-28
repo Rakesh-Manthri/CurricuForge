@@ -169,6 +169,7 @@ class ChatRequest(BaseModel):
     message: str
     curriculum_context: str
     chat_history: List[dict] = []
+    curriculum_data: Optional[dict] = None  # actual curriculum JSON for modifications
 
 @app.post("/api/chat")
 async def chat_with_curriculum(data: ChatRequest):
@@ -176,37 +177,243 @@ async def chat_with_curriculum(data: ChatRequest):
     try:
         from langchain_ollama import ChatOllama
         from langchain_core.messages import HumanMessage, SystemMessage
+        import json as json_mod
+        import copy
 
         llm = ChatOllama(model="granite3.3:2b", temperature=0.4)
 
-        system_prompt = f"""You are a helpful academic advisor for the CurricuForge platform.
-You have full knowledge of the following curriculum that was generated for a student:
+        # Detect if this is a modification request
+        modify_keywords = ['add', 'remove', 'delete', 'replace', 'change', 'modify',
+                          'swap', 'update', 'rename', 'move', 'simplify', 'include', 'insert']
+        msg_lower = data.message.lower()
+        is_modification = any(kw in msg_lower for kw in modify_keywords) and data.curriculum_data
+
+        if is_modification:
+            # ── MODIFICATION MODE: Use a focused prompt for the action ──
+            action_prompt = f"""You are a curriculum editor. The user wants to modify this curriculum.
+
+Current curriculum semesters:
+{data.curriculum_context}
+
+The user says: "{data.message}"
+
+You must respond in EXACTLY this format (nothing else):
+EXPLANATION: [1-2 sentence explanation of the change]
+ACTION: [one of: add_course, remove_course, modify_course]
+SEMESTER: [semester number to modify, e.g. 1, 2, 3]
+COURSE_NAME: [name of the new or target course]
+CREDITS: [credits, default 3]
+DURATION: [weeks, default 15]
+DESCRIPTION: [short course description]
+TOPICS: [comma-separated list of topics]
+
+Examples:
+- If user says "add a machine learning course to semester 3":
+EXPLANATION: Adding a Machine Learning course to Semester 3 to cover AI fundamentals.
+ACTION: add_course
+SEMESTER: 3
+COURSE_NAME: Machine Learning Fundamentals
+CREDITS: 3
+DURATION: 15
+DESCRIPTION: Introduction to machine learning algorithms and applications
+TOPICS: Supervised Learning, Neural Networks, Model Evaluation, Feature Engineering
+
+- If user says "remove the database course from semester 2":
+EXPLANATION: Removing the database course from Semester 2 as requested.
+ACTION: remove_course
+SEMESTER: 2
+COURSE_NAME: Database Systems
+
+Respond now for the user's request. Only output the fields above, nothing else."""
+
+            messages = [SystemMessage(content=action_prompt)]
+            messages.append(HumanMessage(content=data.message))
+
+            response = await llm.ainvoke(messages)
+            raw_reply = response.content.strip()
+            print(f"[CHAT-MODIFY] Raw model response:\n{raw_reply}")
+
+            # Parse the structured response
+            curriculum_update = None
+            explanation = ""
+            try:
+                lines = {}
+                for line in raw_reply.split('\n'):
+                    line = line.strip()
+                    if ':' in line:
+                        key, _, val = line.partition(':')
+                        lines[key.strip().upper().replace(' ', '_')] = val.strip()
+
+                explanation = lines.get('EXPLANATION', 'Changes applied.')
+                action = lines.get('ACTION', '').lower().strip().replace(' ', '_')
+                
+                # Parse semester number robustly
+                sem_str = lines.get('SEMESTER', '1')
+                # Extract just the number
+                import re as re_mod
+                sem_match = re_mod.search(r'(\d+)', sem_str)
+                sem_num = int(sem_match.group(1)) if sem_match else 1
+                
+                course_name = lines.get('COURSE_NAME', 'New Course')
+
+                print(f"[CHAT-MODIFY] Parsed: action={action}, semester={sem_num}, course={course_name}")
+                print(f"[CHAT-MODIFY] All parsed lines: {lines}")
+
+                if action and data.curriculum_data and 'semesters' in data.curriculum_data:
+                    updated = copy.deepcopy(data.curriculum_data)
+                    semesters = updated.get('semesters', [])
+
+                    # Find the target semester (check 'number' field OR use index)
+                    target_sem = None
+                    target_sem_idx = None
+                    for i, sem in enumerate(semesters):
+                        if sem.get('number') == sem_num:
+                            target_sem = sem
+                            target_sem_idx = i
+                            break
+
+                    if not target_sem:
+                        # Fallback: use index
+                        idx = min(sem_num - 1, len(semesters) - 1)
+                        idx = max(0, idx)
+                        if semesters:
+                            target_sem = semesters[idx]
+                            target_sem_idx = idx
+
+                    if target_sem:
+                        if 'courses' not in target_sem:
+                            target_sem['courses'] = []
+
+                        # Log all courses for debugging
+                        course_names_in_sem = [c.get('name', '') for c in target_sem['courses']]
+                        print(f"[CHAT-MODIFY] Courses in semester {sem_num}: {course_names_in_sem}")
+
+                        if action in ('add_course', 'add'):
+                            new_course = {
+                                "name": course_name,
+                                "credits": int(lines.get('CREDITS', '3')),
+                                "duration": int(lines.get('DURATION', '15')),
+                                "description": lines.get('DESCRIPTION', ''),
+                                "topics": [t.strip() for t in lines.get('TOPICS', '').split(',') if t.strip()]
+                            }
+                            target_sem['courses'].append(new_course)
+                            curriculum_update = semesters
+                            print(f"[CHAT-MODIFY] Added course '{course_name}' to semester {sem_num}")
+
+                        elif action in ('remove_course', 'remove', 'delete_course', 'delete'):
+                            original_count = len(target_sem['courses'])
+                            search_name = course_name.lower().strip()
+                            
+                            # Try multiple matching strategies
+                            matched = False
+                            
+                            # Strategy 1: Substring match (either direction)
+                            remaining = [
+                                c for c in target_sem['courses']
+                                if not (search_name in c.get('name', '').lower() or 
+                                       c.get('name', '').lower() in search_name)
+                            ]
+                            if len(remaining) < original_count:
+                                target_sem['courses'] = remaining
+                                matched = True
+                            
+                            # Strategy 2: Word overlap matching (if strategy 1 didn't work)
+                            if not matched:
+                                search_words = set(search_name.split())
+                                best_match_idx = -1
+                                best_overlap = 0
+                                for ci, c in enumerate(target_sem['courses']):
+                                    cname_words = set(c.get('name', '').lower().split())
+                                    overlap = len(search_words & cname_words)
+                                    if overlap > best_overlap:
+                                        best_overlap = overlap
+                                        best_match_idx = ci
+                                
+                                if best_match_idx >= 0 and best_overlap >= 1:
+                                    removed_name = target_sem['courses'][best_match_idx].get('name', '')
+                                    target_sem['courses'].pop(best_match_idx)
+                                    matched = True
+                                    print(f"[CHAT-MODIFY] Fuzzy matched and removed '{removed_name}'")
+                            
+                            # Strategy 3: Search ALL semesters if not found in target
+                            if not matched:
+                                for si, sem in enumerate(semesters):
+                                    for ci, c in enumerate(sem.get('courses', [])):
+                                        c_lower = c.get('name', '').lower()
+                                        if search_name in c_lower or c_lower in search_name:
+                                            removed_name = c.get('name', '')
+                                            sem['courses'].pop(ci)
+                                            matched = True
+                                            print(f"[CHAT-MODIFY] Found and removed '{removed_name}' from semester {si+1}")
+                                            break
+                                    if matched:
+                                        break
+                            
+                            if matched:
+                                curriculum_update = semesters
+                                print(f"[CHAT-MODIFY] Remove successful")
+                            else:
+                                explanation += f" (Note: Could not find a course matching '{course_name}' to remove.)"
+                                print(f"[CHAT-MODIFY] Remove FAILED - no match for '{course_name}'")
+
+                        elif action in ('modify_course', 'modify', 'update_course', 'update', 'change'):
+                            search_name = course_name.lower().strip()
+                            modified = False
+                            for c in target_sem['courses']:
+                                c_lower = c.get('name', '').lower()
+                                if search_name in c_lower or c_lower in search_name:
+                                    if lines.get('DESCRIPTION'):
+                                        c['description'] = lines['DESCRIPTION']
+                                    if lines.get('TOPICS'):
+                                        c['topics'] = [t.strip() for t in lines['TOPICS'].split(',') if t.strip()]
+                                    if lines.get('CREDITS'):
+                                        c['credits'] = int(lines['CREDITS'])
+                                    if lines.get('DURATION'):
+                                        c['duration'] = int(lines['DURATION'])
+                                    curriculum_update = semesters
+                                    modified = True
+                                    print(f"[CHAT-MODIFY] Modified course '{c.get('name')}'")
+                                    break
+                            if not modified:
+                                explanation += f" (Note: Could not find '{course_name}' to modify.)"
+
+                    print(f"[CHAT-MODIFY] Final result: success={curriculum_update is not None}")
+
+            except Exception as parse_err:
+                print(f"[CHAT-MODIFY] Parse error: {parse_err}")
+                explanation = f"I understand you want to modify the curriculum. {raw_reply}"
+
+            result = {"reply": explanation}
+            if curriculum_update:
+                result["curriculum_update"] = curriculum_update
+            else:
+                result["reply"] = explanation + "\n\nI wasn't able to apply the change automatically. You can use the ✏️ Customize button to make manual edits."
+            return result
+
+        else:
+            # ── NORMAL Q&A MODE ──
+            system_prompt = f"""You are a helpful academic advisor for the CurricuForge platform.
+You have full knowledge of the following curriculum:
 
 {data.curriculum_context}
 
-Your job:
-- Answer questions about the curriculum clearly and helpfully
-- Explain courses, topics, and learning paths in detail
-- Suggest modifications if asked (explain what to change and why)
-- Be encouraging, professional, and specific
-- If the user asks to modify the curriculum, describe the changes in detail
+Answer questions clearly and helpfully. Be encouraging and specific.
+Keep responses concise (2-4 paragraphs max).
+If the user asks to modify the curriculum, suggest using the ✏️ Customize button or tell them to phrase it as: "Add [course] to Semester [N]" or "Remove [course] from Semester [N]"."""
 
-Keep responses concise but informative (2-4 paragraphs max)."""
+            messages = [SystemMessage(content=system_prompt)]
+            for msg in data.chat_history[-6:]:
+                if msg.get('role') == 'user':
+                    messages.append(HumanMessage(content=msg['content']))
+                else:
+                    from langchain_core.messages import AIMessage
+                    messages.append(AIMessage(content=msg['content']))
 
-        # Build message history
-        messages = [SystemMessage(content=system_prompt)]
-        for msg in data.chat_history[-6:]:  # Keep last 6 messages for context
-            if msg.get('role') == 'user':
-                messages.append(HumanMessage(content=msg['content']))
-            else:
-                from langchain_core.messages import AIMessage
-                messages.append(AIMessage(content=msg['content']))
+            messages.append(HumanMessage(content=data.message))
+            response = await llm.ainvoke(messages)
 
-        messages.append(HumanMessage(content=data.message))
+            return {"reply": response.content}
 
-        response = await llm.ainvoke(messages)
-
-        return {"reply": response.content}
     except Exception as e:
         import traceback
         print(traceback.format_exc())
