@@ -164,6 +164,7 @@ function showNotification(title, message, type = 'success') {
                         <div style="font-size:0.7rem;color:var(--text-muted);">${data.user.email}</div>
                     </div>
                     <a href="/generate" style="display:block;padding:0.4rem 0.75rem;font-size:0.8rem;color:var(--text-body);text-decoration:none;border-radius:8px;" onmouseenter="this.style.background='rgba(99,102,241,0.06)'" onmouseleave="this.style.background=''">🎓 Generate</a>
+                    <a href="/history" style="display:block;padding:0.4rem 0.75rem;font-size:0.8rem;color:var(--text-body);text-decoration:none;border-radius:8px;" onmouseenter="this.style.background='rgba(99,102,241,0.06)'" onmouseleave="this.style.background=''">📁 History</a>
                     <a href="/analysis" style="display:block;padding:0.4rem 0.75rem;font-size:0.8rem;color:var(--text-body);text-decoration:none;border-radius:8px;" onmouseenter="this.style.background='rgba(99,102,241,0.06)'" onmouseleave="this.style.background=''">🔍 Analysis</a>
                     <button id="navSignOutBtn" style="display:block;width:100%;text-align:left;padding:0.4rem 0.75rem;font-size:0.8rem;color:#ef4444;background:none;border:none;cursor:pointer;border-radius:8px;font-family:inherit;margin-top:0.25rem;border-top:1px solid var(--border);padding-top:0.5rem;" onmouseenter="this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.background=''">🚪 Sign Out</button>
                 </div>

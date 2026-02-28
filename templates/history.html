@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My History | CurricuForge</title>
+    <meta name="description" content="View your previously generated curricula and revisit past designs.">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    <style>
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .history-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .history-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .history-card:nth-child(6n+1)::before {
+            background: linear-gradient(90deg, #6366f1, #818cf8);
+        }
+
+        .history-card:nth-child(6n+2)::before {
+            background: linear-gradient(90deg, #06b6d4, #22d3ee);
+        }
+
+        .history-card:nth-child(6n+3)::before {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .history-card:nth-child(6n+4)::before {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .history-card:nth-child(6n+5)::before {
+            background: linear-gradient(90deg, #a855f7, #c084fc);
+        }
+
+        .history-card:nth-child(6n+6)::before {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        .history-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .history-card-skill {
+            font-size: 1.0625rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            margin-bottom: 0.35rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .history-card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .history-card-meta .badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 700;
+        }
+
+        .history-card-summary {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+
+        .history-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.625rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .history-card-date {
+            font-size: 0.7rem;
+            color: var(--text-subtle);
+        }
+
+        .history-card-actions {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .history-action-btn {
+            padding: 0.3rem 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
+            color: var(--text-body);
+        }
+
+        .history-action-btn:hover {
+            border-color: var(--primary-start);
+            color: var(--primary-start);
+            background: rgba(99, 102, 241, 0.04);
+        }
+
+        .history-action-btn.primary {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+        }
+
+        .history-action-btn.primary:hover {
+            opacity: 0.9;
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: 4rem 2rem;
+            grid-column: 1 / -1;
+        }
+
+        .history-empty .icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .history-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .stat-box {
+            padding: 1rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-box .value {
+            font-size: 1.75rem;
+            font-weight: 800;
+        }
+
+        .stat-box .label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* Modal overlay for viewing curriculum */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 2rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.08);
+            color: #ef4444;
+        }
+
+        @media (max-width: 640px) {
+            .history-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .history-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="container">
+            <div class="nav-inner">
+                <a href="/" class="nav-logo">
+                    <div class="nav-logo-icon">⚒</div>
+                    <span class="nav-logo-text">CurricuForge</span>
+                </a>
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/generate">Generate</a></li>
+                    <li><a href="/history" class="active">History</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">🌙</button>
+                    <a href="/signin" class="btn btn-primary btn-sm nav-cta">Sign In →</a>
+                </div>
+                <button class="hamburger" id="hamburger" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- PAGE HERO -->
+    <div class="page-hero">
+        <div class="container">
+            <div class="badge badge-primary" style="margin:0 auto 1rem;">📁 My Curricula</div>
+            <h1 class="heading-lg animate-fade-up">Generation History</h1>
+            <p class="text-muted mt-2 animate-fade-up-delay-1"
+                style="font-size:1.0625rem;max-width:560px;margin:0.75rem auto 0;">
+                View, revisit, and analyze all your previously generated curricula.
+            </p>
+        </div>
+    </div>
+
+    <section class="section" style="padding:2rem 0 5rem;">
+        <div class="container" style="max-width:1000px;">
+            <!-- Stats -->
+            <div class="history-stats" id="historyStats"></div>
+
+            <!-- Grid of cards -->
+            <div class="history-grid" id="historyGrid">
+                <div class="history-empty">
+                    <div class="icon">⏳</div>
+                    <div style="font-weight:600;color:var(--text-muted);font-size:1rem;">Loading your history...</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VIEW MODAL -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content" id="modalContent">
+            <button class="modal-close" id="modalClose">✕</button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo nav-logo" style="margin-bottom:0.75rem;">
+                        <div class="nav-logo-icon">⚒</div>
+                        <span class="nav-logo-text">CurricuForge</span>
+                    </div>
+                    <p class="footer-desc">An intelligent curriculum design platform powered by IBM Granite 3.3 2B.</p>
+                </div>
+                <div class="footer-col">
+                    <div class="footer-col-title">Platform</div>
+                    <ul class="footer-links">
+                        <li><a href="/generate">Generate</a></li>
+                        <li><a href="/history">History</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 CurricuForge. Built using IBM Granite.</span>
+                <span>MIT License</span>
+            </div>
+        </div>
+    </footer>
+
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <script src="{{ url_for('static', path='js/main.js') }}"></script>
+    <script src="{{ url_for('static', path='js/history.js') }}"></script>
+</body>
+
+</html>

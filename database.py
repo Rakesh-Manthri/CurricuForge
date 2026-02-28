@@ -23,6 +23,7 @@ async def init_db():
             CREATE TABLE IF NOT EXISTS curricula (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
                 created_at      TEXT DEFAULT (datetime('now')),
+                user_id         INTEGER,
                 skill           TEXT NOT NULL,
                 level           TEXT NOT NULL,
                 num_semesters   INTEGER NOT NULL,
@@ -79,7 +80,7 @@ async def init_db():
         print(f"[DB] SQLite database initialized at: {DB_PATH}")
 
 
-async def save_curriculum(input_data: dict, parsed: dict, plan: str, review: str, raw_output: str) -> Optional[int]:
+async def save_curriculum(input_data: dict, parsed: dict, plan: str, review: str, raw_output: str, user_id: int = None) -> Optional[int]:
     """
     Save a generated curriculum to SQLite.
     Returns the curriculum ID.
@@ -91,11 +92,12 @@ async def save_curriculum(input_data: dict, parsed: dict, plan: str, review: str
 
             # Insert main curriculum record
             cursor = await db.execute("""
-                INSERT INTO curricula (skill, level, num_semesters, weekly_hours,
+                INSERT INTO curricula (user_id, skill, level, num_semesters, weekly_hours,
                                       industry, goals, style, selected_topics, notes,
                                       summary, agent_plan, agent_review, raw_output)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
+                user_id,
                 input_data.get('skill', ''),
                 input_data.get('level', 'undergraduate'),
                 input_data.get('semesters', 4),
@@ -187,17 +189,24 @@ async def get_curriculum(curriculum_id: int) -> Optional[dict]:
         return None
 
 
-async def list_curricula(limit: int = 20) -> list:
-    """List recent curricula."""
+async def list_curricula(limit: int = 20, user_id: int = None) -> list:
+    """List recent curricula, optionally filtered by user."""
     try:
         async with aiosqlite.connect(DB_PATH) as db:
             db.row_factory = aiosqlite.Row
-            async with db.execute(
-                "SELECT id, skill, level, num_semesters, created_at FROM curricula ORDER BY created_at DESC LIMIT ?",
-                (limit,)
-            ) as cursor:
-                rows = await cursor.fetchall()
-                return [dict(r) for r in rows]
+            if user_id:
+                async with db.execute(
+                    "SELECT id, skill, level, num_semesters, weekly_hours, created_at, summary FROM curricula WHERE user_id = ? ORDER BY created_at DESC LIMIT ?",
+                    (user_id, limit)
+                ) as cursor:
+                    rows = await cursor.fetchall()
+            else:
+                async with db.execute(
+                    "SELECT id, skill, level, num_semesters, weekly_hours, created_at, summary FROM curricula ORDER BY created_at DESC LIMIT ?",
+                    (limit,)
+                ) as cursor:
+                    rows = await cursor.fetchall()
+            return [dict(r) for r in rows]
     except Exception as e:
         print(f"[DB] Error listing curricula: {e}")
         return []

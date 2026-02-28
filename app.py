@@ -456,7 +456,7 @@ def parse_curriculum_output(ai_output: str) -> dict:
 
 # ── Generation endpoint ──────────────────────────────────────────────
 @app.post("/generate")
-async def generate_curriculum(data: CurriculumRequest):
+async def generate_curriculum(data: CurriculumRequest, request: Request):
     """
     Agentic Curriculum generation endpoint.
     Uses a multi-agent LangGraph workflow (Planner -> Detailer -> Reviewer).
@@ -489,10 +489,16 @@ async def generate_curriculum(data: CurriculumRequest):
         # Parse the structured text
         structured_curriculum = parse_curriculum_output(ai_output)
 
-        # Save to SQLite
+        # Save to SQLite (with user_id if logged in)
         db_id = None
+        user_id = None
+        token = request.cookies.get("cf_session")
+        if token:
+            user = await get_user_by_token(token)
+            if user:
+                user_id = user['id']
         try:
-            db_id = await save_curriculum(input_payload, structured_curriculum, plan, review_result, ai_output)
+            db_id = await save_curriculum(input_payload, structured_curriculum, plan, review_result, ai_output, user_id=user_id)
         except Exception as db_err:
             print(f"[DB] Save failed (non-critical): {db_err}")
 
@@ -511,11 +517,21 @@ async def generate_curriculum(data: CurriculumRequest):
         raise HTTPException(status_code=500, detail=f"Agent Workflow Error: {str(e)}")
 
 
-# ── History endpoints ────────────────────────────────────────────────
+# ── History page & endpoints ────────────────────────────────────────
+@app.get("/history", response_class=HTMLResponse)
+async def history_page(request: Request):
+    return templates.TemplateResponse("history.html", {"request": request})
+
 @app.get("/api/curricula")
-async def api_list_curricula():
-    """Get recent generated curricula."""
-    items = await list_curricula(limit=20)
+async def api_list_curricula(request: Request):
+    """Get recent generated curricula for the logged-in user."""
+    user_id = None
+    token = request.cookies.get("cf_session")
+    if token:
+        user = await get_user_by_token(token)
+        if user:
+            user_id = user['id']
+    items = await list_curricula(limit=50, user_id=user_id)
     return {"curricula": items}
 
 @app.get("/api/curricula/{curriculum_id}")
