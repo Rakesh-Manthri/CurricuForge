@@ -158,15 +158,15 @@ function showNotification(title, message, type = 'success') {
                     <span style="font-size:0.8rem;font-weight:600;color:var(--text-heading);">${data.user.full_name.split(' ')[0]}</span>
                     <span style="font-size:0.6rem;color:var(--text-muted);">▼</span>
                 </button>
-                <div class="nav-user-dropdown" id="navUserDropdown" style="display:none;position:absolute;top:calc(100% + 6px);right:0;background:white;border:1px solid var(--border);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.1);padding:0.5rem;min-width:180px;z-index:100;">
+                <div class="nav-user-dropdown" id="navUserDropdown" style="display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.15);padding:0.5rem;min-width:180px;z-index:100;">
                     <div style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);margin-bottom:0.25rem;">
                         <div style="font-size:0.8rem;font-weight:600;color:var(--text-heading);">${data.user.full_name}</div>
                         <div style="font-size:0.7rem;color:var(--text-muted);">${data.user.email}</div>
                     </div>
-                    <a href="/generate" style="display:block;padding:0.4rem 0.75rem;font-size:0.8rem;color:var(--text-body);text-decoration:none;border-radius:8px;" onmouseenter="this.style.background='rgba(99,102,241,0.06)'" onmouseleave="this.style.background=''">🎓 Generate</a>
-                    <a href="/history" style="display:block;padding:0.4rem 0.75rem;font-size:0.8rem;color:var(--text-body);text-decoration:none;border-radius:8px;" onmouseenter="this.style.background='rgba(99,102,241,0.06)'" onmouseleave="this.style.background=''">📁 History</a>
-                    <a href="/analysis" style="display:block;padding:0.4rem 0.75rem;font-size:0.8rem;color:var(--text-body);text-decoration:none;border-radius:8px;" onmouseenter="this.style.background='rgba(99,102,241,0.06)'" onmouseleave="this.style.background=''">🔍 Analysis</a>
-                    <button id="navSignOutBtn" style="display:block;width:100%;text-align:left;padding:0.4rem 0.75rem;font-size:0.8rem;color:#ef4444;background:none;border:none;cursor:pointer;border-radius:8px;font-family:inherit;margin-top:0.25rem;border-top:1px solid var(--border);padding-top:0.5rem;" onmouseenter="this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.background=''">🚪 Sign Out</button>
+                    <a href="/generate" style="display:block;padding:0.4rem 0.75rem;font-size:0.8rem;color:var(--text-body);text-decoration:none;border-radius:8px;" onmouseenter="this.style.background='rgba(99,102,241,0.08)'" onmouseleave="this.style.background=''">🎓 Generate</a>
+                    <a href="/history" style="display:block;padding:0.4rem 0.75rem;font-size:0.8rem;color:var(--text-body);text-decoration:none;border-radius:8px;" onmouseenter="this.style.background='rgba(99,102,241,0.08)'" onmouseleave="this.style.background=''">📁 History</a>
+                    <a href="/analysis" style="display:block;padding:0.4rem 0.75rem;font-size:0.8rem;color:var(--text-body);text-decoration:none;border-radius:8px;" onmouseenter="this.style.background='rgba(99,102,241,0.08)'" onmouseleave="this.style.background=''">🔍 Analysis</a>
+                    <button id="navSignOutBtn" style="display:block;width:100%;text-align:left;padding:0.4rem 0.75rem;font-size:0.8rem;color:#ef4444;background:none;border:none;cursor:pointer;border-radius:8px;font-family:inherit;margin-top:0.25rem;border-top:1px solid var(--border);padding-top:0.5rem;" onmouseenter="this.style.background='rgba(239,68,68,0.08)'" onmouseleave="this.style.background=''">🚪 Sign Out</button>
                 </div>
             </div>`;
 

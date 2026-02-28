@@ -83,6 +83,64 @@ async def about(request: Request):
 async def contact(request: Request):
     return templates.TemplateResponse("contact.html", {"request": request})
 
+
+# ── Contact form endpoint ────────────────────────────────────────────
+class ContactRequest(BaseModel):
+    name: str
+    email: str
+    subject: Optional[str] = ""
+    message: str
+    tags: List[str] = []
+
+@app.post("/api/contact")
+async def api_contact(data: ContactRequest):
+    """Send the contact form message via SMTP to the configured email."""
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    SMTP_EMAIL = os.getenv("SMTP_EMAIL", "").strip()
+    SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "").strip()
+    CONTACT_TO_EMAIL = os.getenv("CONTACT_TO_EMAIL", "manthrirs06@gmail.com").strip()
+
+    print(f"[EMAIL DEBUG] SMTP_EMAIL='{SMTP_EMAIL}', PASSWORD length={len(SMTP_PASSWORD)}, TO='{CONTACT_TO_EMAIL}'")
+
+    if not SMTP_EMAIL or not SMTP_PASSWORD:
+        raise HTTPException(status_code=500, detail="Email service is not configured. Please set SMTP_EMAIL and SMTP_PASSWORD in your .env file.")
+
+    # Build email
+    msg = MIMEMultipart()
+    msg["From"] = SMTP_EMAIL
+    msg["To"] = CONTACT_TO_EMAIL
+    msg["Subject"] = f"CurricuForge Contact: {data.subject or 'General'}"
+
+    tags_str = ", ".join(data.tags) if data.tags else "None"
+    body = f"""New contact message from CurricuForge:
+
+Name: {data.name}
+Email: {data.email}
+Subject: {data.subject or 'General'}
+Tags: {tags_str}
+
+Message:
+{data.message}
+"""
+    msg.attach(MIMEText(body, "plain"))
+
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(SMTP_EMAIL, SMTP_PASSWORD)
+            server.send_message(msg)
+        return {"status": "success", "message": "Email sent successfully."}
+    except Exception as e:
+        print(f"[EMAIL] Error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
+
+
 @app.get("/analysis", response_class=HTMLResponse)
 async def analysis_page(request: Request):
     return templates.TemplateResponse("analysis.html", {"request": request})
