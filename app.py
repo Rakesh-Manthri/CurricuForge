@@ -83,6 +83,64 @@ async def about(request: Request):
 async def contact(request: Request):
     return templates.TemplateResponse("contact.html", {"request": request})
 
+
+# ── Contact form endpoint ────────────────────────────────────────────
+class ContactRequest(BaseModel):
+    name: str
+    email: str
+    subject: Optional[str] = ""
+    message: str
+    tags: List[str] = []
+
+@app.post("/api/contact")
+async def api_contact(data: ContactRequest):
+    """Send the contact form message via SMTP to the configured email."""
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    SMTP_EMAIL = os.getenv("SMTP_EMAIL", "").strip()
+    SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "").strip()
+    CONTACT_TO_EMAIL = os.getenv("CONTACT_TO_EMAIL", "manthrirs06@gmail.com").strip()
+
+    print(f"[EMAIL DEBUG] SMTP_EMAIL='{SMTP_EMAIL}', PASSWORD length={len(SMTP_PASSWORD)}, TO='{CONTACT_TO_EMAIL}'")
+
+    if not SMTP_EMAIL or not SMTP_PASSWORD:
+        raise HTTPException(status_code=500, detail="Email service is not configured. Please set SMTP_EMAIL and SMTP_PASSWORD in your .env file.")
+
+    # Build email
+    msg = MIMEMultipart()
+    msg["From"] = SMTP_EMAIL
+    msg["To"] = CONTACT_TO_EMAIL
+    msg["Subject"] = f"CurricuForge Contact: {data.subject or 'General'}"
+
+    tags_str = ", ".join(data.tags) if data.tags else "None"
+    body = f"""New contact message from CurricuForge:
+
+Name: {data.name}
+Email: {data.email}
+Subject: {data.subject or 'General'}
+Tags: {tags_str}
+
+Message:
+{data.message}
+"""
+    msg.attach(MIMEText(body, "plain"))
+
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(SMTP_EMAIL, SMTP_PASSWORD)
+            server.send_message(msg)
+        return {"status": "success", "message": "Email sent successfully."}
+    except Exception as e:
+        print(f"[EMAIL] Error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
+
+
 @app.get("/analysis", response_class=HTMLResponse)
 async def analysis_page(request: Request):
     return templates.TemplateResponse("analysis.html", {"request": request})
@@ -381,7 +439,119 @@ Respond now for the user's request. Only output the fields above, nothing else."
 
             except Exception as parse_err:
                 print(f"[CHAT-MODIFY] Parse error: {parse_err}")
-                explanation = f"I understand you want to modify the curriculum. {raw_reply}"
+                explanation = raw_reply
+
+            # ── FALLBACK: If structured parsing didn't produce an update, try NLP-based extraction ──
+            if curriculum_update is None and data.curriculum_data and 'semesters' in data.curriculum_data:
+                print("[CHAT-MODIFY] Structured parse failed, trying fallback NLP extraction...")
+                try:
+                    import re as re_mod
+                    updated = copy.deepcopy(data.curriculum_data)
+                    semesters = updated.get('semesters', [])
+                    user_msg = data.message.lower()
+
+                    # Determine action from user's original message
+                    fallback_action = None
+                    if any(w in user_msg for w in ['add', 'include', 'insert', 'create']):
+                        fallback_action = 'add'
+                    elif any(w in user_msg for w in ['remove', 'delete', 'drop', 'eliminate']):
+                        fallback_action = 'remove'
+                    elif any(w in user_msg for w in ['change', 'modify', 'update', 'rename', 'replace']):
+                        fallback_action = 'modify'
+
+                    # Extract semester number from user message
+                    sem_match = re_mod.search(r'semester\s*(\d+)', user_msg)
+                    fallback_sem = int(sem_match.group(1)) if sem_match else None
+                    if not fallback_sem:
+                        sem_match = re_mod.search(r'sem\s*(\d+)', user_msg)
+                        fallback_sem = int(sem_match.group(1)) if sem_match else None
+
+                    # Extract course name from user message (text between quotes or after course keywords)
+                    name_match = re_mod.search(r'["\']([^"\']+)["\']', data.message)
+                    if not name_match:
+                        # Try "add X to semester N" or "remove X from semester N"
+                        name_match = re_mod.search(r'(?:add|include|insert)\s+(?:a\s+)?(?:course\s+(?:on|about|for|called|named)\s+)?(.+?)(?:\s+to\s+|\s+in\s+)', data.message, re_mod.IGNORECASE)
+                    if not name_match:
+                        name_match = re_mod.search(r'(?:remove|delete|drop)\s+(?:the\s+)?(?:course\s+)?(.+?)(?:\s+from\s+)', data.message, re_mod.IGNORECASE)
+                    if not name_match:
+                        # Try to get course name from model response
+                        name_match = re_mod.search(r'["\']([^"\']+)["\']', raw_reply)
+
+                    fallback_course = name_match.group(1).strip() if name_match else None
+
+                    print(f"[CHAT-MODIFY FALLBACK] action={fallback_action}, semester={fallback_sem}, course={fallback_course}")
+
+                    if fallback_action and fallback_course:
+                        # Find target semester
+                        target = None
+                        if fallback_sem:
+                            for sem in semesters:
+                                if sem.get('number') == fallback_sem:
+                                    target = sem
+                                    break
+                            if not target and fallback_sem <= len(semesters):
+                                target = semesters[fallback_sem - 1]
+                        if not target and semesters:
+                            target = semesters[-1]  # default to last semester
+
+                        if target and 'courses' not in target:
+                            target['courses'] = []
+
+                        if fallback_action == 'add' and target:
+                            # Use model response for course details if available
+                            desc = lines.get('DESCRIPTION', f'A course covering {fallback_course}')
+                            topics_str = lines.get('TOPICS', fallback_course)
+                            new_course = {
+                                "name": fallback_course,
+                                "credits": int(lines.get('CREDITS', '3')),
+                                "duration": int(lines.get('DURATION', '15')),
+                                "description": desc,
+                                "topics": [t.strip() for t in topics_str.split(',') if t.strip()]
+                            }
+                            target['courses'].append(new_course)
+                            curriculum_update = semesters
+                            if not explanation or explanation == raw_reply:
+                                explanation = f"Added '{fallback_course}' to Semester {fallback_sem or 'last'}."
+                            print(f"[CHAT-MODIFY FALLBACK] Added '{fallback_course}'")
+
+                        elif fallback_action == 'remove' and target:
+                            search = fallback_course.lower()
+                            orig_len = len(target['courses'])
+                            # Try word overlap matching
+                            search_words = set(search.split())
+                            best_idx = -1
+                            best_score = 0
+                            for ci, c in enumerate(target.get('courses', [])):
+                                cname = c.get('name', '').lower()
+                                cword = set(cname.split())
+                                score = len(search_words & cword)
+                                if search in cname or cname in search:
+                                    score = 100
+                                if score > best_score:
+                                    best_score = score
+                                    best_idx = ci
+                            
+                            if best_idx >= 0 and best_score >= 1:
+                                removed = target['courses'].pop(best_idx)
+                                curriculum_update = semesters
+                                explanation = f"Removed '{removed.get('name')}' from Semester {fallback_sem or '?'}."
+                                print(f"[CHAT-MODIFY FALLBACK] Removed '{removed.get('name')}'")
+                            else:
+                                # Search all semesters
+                                for si, sem in enumerate(semesters):
+                                    for ci, c in enumerate(sem.get('courses', [])):
+                                        cname = c.get('name', '').lower()
+                                        if search in cname or cname in search or len(set(search.split()) & set(cname.split())) >= 1:
+                                            removed = sem['courses'].pop(ci)
+                                            curriculum_update = semesters
+                                            explanation = f"Removed '{removed.get('name')}' from Semester {si+1}."
+                                            print(f"[CHAT-MODIFY FALLBACK] Removed '{removed.get('name')}' from sem {si+1}")
+                                            break
+                                    if curriculum_update:
+                                        break
+
+                except Exception as fb_err:
+                    print(f"[CHAT-MODIFY FALLBACK] Error: {fb_err}")
 
             result = {"reply": explanation}
             if curriculum_update:

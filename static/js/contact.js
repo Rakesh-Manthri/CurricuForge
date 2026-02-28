@@ -2,6 +2,7 @@
    contact.js — Contact form handling
    ================================================ */
 
+const contactForm = document.getElementById('contactForm');
 const submitBtn = document.getElementById('contactSubmitBtn');
 
 // Tag toggles
@@ -49,13 +50,30 @@ if (contactForm) {
         submitBtn.innerHTML = '<div class="spinner"></div> Sending...';
         submitBtn.disabled = true;
 
-        // Simulate submission (replace with real endpoint)
-        await new Promise(r => setTimeout(r, 1400));
+        const subject = document.getElementById('contactSubject').value;
+        const selectedTags = [...document.querySelectorAll('#contactTags .topic-tag.active')]
+            .map(t => t.dataset.tag);
 
-        showNotification("Message Sent", "We've received your message and will get back to you soon!");
-        contactForm.reset();
-        document.querySelectorAll('#contactTags .topic-tag').forEach(t => t.classList.remove('active'));
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, subject, message, tags: selectedTags })
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.detail || 'Failed to send message.');
+            }
+
+            showNotification("Message Sent", "We've received your message and will get back to you soon!");
+            contactForm.reset();
+            document.querySelectorAll('#contactTags .topic-tag').forEach(t => t.classList.remove('active'));
+        } catch (err) {
+            showNotification("Send Failed", err.message || "Could not send the message. Please try again.", "error");
+        } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
     });
 }
