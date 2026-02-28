@@ -20,7 +20,7 @@
         .auth-card {
             width: 100%;
             max-width: 440px;
-            background: white;
+            background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
@@ -64,6 +64,7 @@
             font-weight: 800;
             background: var(--gradient-primary);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -108,7 +109,7 @@
             outline: none;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
             font-family: inherit;
-            background: var(--bg-main);
+            background: var(--bg);
             color: var(--text-body);
         }
 
@@ -145,10 +146,10 @@
 
         .auth-error {
             padding: 0.625rem 0.875rem;
-            background: #fef2f2;
-            border: 1px solid #fee2e2;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
             border-radius: 10px;
-            color: #dc2626;
+            color: #ef4444;
             font-size: 0.8125rem;
             font-weight: 500;
             display: none;
@@ -175,6 +176,12 @@
             text-decoration: underline;
         }
     </style>
+    <script>
+        (function () {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') document.documentElement.className = 'dark-mode';
+        })();
+    </script>
 </head>
 
 <body>

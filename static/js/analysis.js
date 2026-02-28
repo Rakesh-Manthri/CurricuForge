@@ -160,7 +160,7 @@ function toggleEditMode() {
         renderEditMode();
     } else {
         toggleBtn.innerHTML = '✏️ Customize';
-        toggleBtn.style.background = 'white';
+        toggleBtn.style.background = 'var(--surface)';
         toggleBtn.style.color = 'var(--text-body)';
         toggleBtn.style.borderColor = 'var(--border)';
         saveBtn.style.display = 'none';
@@ -283,7 +283,7 @@ function saveChanges() {
     const toggleBtn = document.getElementById('editToggleBtn');
     const saveBtn = document.getElementById('saveChangesBtn');
     toggleBtn.innerHTML = '✏️ Customize';
-    toggleBtn.style.background = 'white';
+    toggleBtn.style.background = 'var(--surface)';
     toggleBtn.style.color = 'var(--text-body)';
     toggleBtn.style.borderColor = 'var(--border)';
     saveBtn.style.display = 'none';
@@ -426,7 +426,7 @@ function applyCurriculumUpdate(updatedSemesters) {
         const saveBtn = document.getElementById('saveChangesBtn');
         if (toggleBtn) {
             toggleBtn.innerHTML = '✏️ Customize';
-            toggleBtn.style.background = 'white';
+            toggleBtn.style.background = 'var(--surface)';
             toggleBtn.style.color = 'var(--text-body)';
             toggleBtn.style.borderColor = 'var(--border)';
         }

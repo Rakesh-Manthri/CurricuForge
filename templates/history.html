@@ -15,7 +15,7 @@
         }
 
         .history-card {
-            background: white;
+            background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 1.5rem;
@@ -95,6 +95,7 @@
             line-height: 1.6;
             display: -webkit-box;
             -webkit-line-clamp: 3;
+            line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
             margin-bottom: 0.75rem;
@@ -122,7 +123,7 @@
             padding: 0.3rem 0.6rem;
             border: 1px solid var(--border);
             border-radius: 8px;
-            background: white;
+            background: var(--surface-2);
             font-size: 0.7rem;
             font-weight: 600;
             cursor: pointer;
@@ -167,7 +168,7 @@
 
         .stat-box {
             padding: 1rem;
-            background: white;
+            background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 14px;
             text-align: center;
@@ -207,7 +208,7 @@
         }
 
         .modal-content {
-            background: white;
+            background: var(--surface);
             border-radius: 20px;
             max-width: 800px;
             width: 100%;
@@ -222,7 +223,7 @@
             position: absolute;
             top: 1rem;
             right: 1rem;
-            background: var(--bg-main);
+            background: var(--bg);
             border: 1px solid var(--border);
             border-radius: 50%;
             width: 32px;
@@ -249,6 +250,12 @@
             }
         }
     </style>
+    <script>
+        (function () {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') document.documentElement.className = 'dark-mode';
+        })();
+    </script>
 </head>
 
 <body>

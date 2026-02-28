@@ -140,7 +140,7 @@ async function viewCurriculum(id) {
         // Summary
         if (cur.summary) {
             html += `
-            <div style="padding:1rem;border-left:3px solid var(--primary-start);background:rgba(99,102,241,0.03);border-radius:0 10px 10px 0;margin-bottom:1.25rem;">
+            <div style="padding:1rem;border-left:3px solid var(--primary-start);background:var(--surface-2);border-radius:0 10px 10px 0;margin-bottom:1.25rem;">
                 <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--primary-start);margin-bottom:0.3rem;">Summary</div>
                 <div style="font-size:0.875rem;color:var(--text-body);line-height:1.65;">${cur.summary}</div>
             </div>`;
@@ -164,7 +164,7 @@ async function viewCurriculum(id) {
                             ? c.topics
                             : (typeof c.topics === 'string' ? JSON.parse(c.topics || '[]') : []);
                         html += `
-                        <div style="padding:0.75rem;border:1px solid var(--border);border-radius:10px;border-top:2px solid ${clr};background:white;">
+                        <div style="padding:0.75rem;border:1px solid var(--border);border-radius:10px;border-top:2px solid ${clr};background:var(--surface);">
                             <div style="font-weight:600;font-size:0.8rem;color:var(--text-heading);margin-bottom:0.25rem;">📘 ${c.course_name}</div>
                             <div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:0.4rem;">${c.credits} Credits · ${c.duration_weeks} Weeks</div>
                             ${c.description ? `<div style="font-size:0.75rem;color:var(--text-body);line-height:1.5;margin-bottom:0.35rem;">${c.description}</div>` : ''}

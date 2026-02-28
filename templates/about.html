@@ -8,6 +8,12 @@
     <meta name="description"
         content="Learn about CurricuForge — the AI-powered curriculum design system built on IBM Granite 3.3 2B and Ollama.">
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    <script>
+        (function () {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') document.documentElement.className = 'dark-mode';
+        })();
+    </script>
 </head>
 
 <body>

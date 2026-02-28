@@ -57,7 +57,7 @@
 }
 
 /* --- Dark Mode Overrides --- */
-body.dark-mode {
+.dark-mode {
     --bg: var(--bg-dark);
     --surface: var(--surface-dark);
     --surface-2: var(--surface-2-dark);
@@ -69,33 +69,33 @@ body.dark-mode {
     --footer-bg: #020617;
 }
 
-body.dark-mode .navbar {
+.dark-mode .navbar {
     background: rgba(15, 23, 42, 0.85);
     border-bottom-color: var(--border-dark);
 }
 
-body.dark-mode .card,
-body.dark-mode .glass-card {
+.dark-mode .card,
+.dark-mode .glass-card {
     background: rgba(30, 41, 59, 0.7);
     border-color: rgba(255, 255, 255, 0.05);
 }
 
-body.dark-mode .nav-links a:hover,
-body.dark-mode .nav-links a.active {
+.dark-mode .nav-links a:hover,
+.dark-mode .nav-links a.active {
     background: rgba(255, 255, 255, 0.05);
 }
 
-body.dark-mode select option {
+.dark-mode select option {
     background: var(--surface-dark);
     color: white;
 }
 
-body.dark-mode .step-card,
-body.dark-mode .tech-card {
+.dark-mode .step-card,
+.dark-mode .tech-card {
     background: var(--surface-dark);
 }
 
-body.dark-mode .form-control {
+.dark-mode .form-control {
     background: var(--surface-2-dark);
     color: white;
 }

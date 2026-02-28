@@ -184,7 +184,7 @@ function renderOutput(result, payload) {
     html += `
     <div style="padding:1.25rem; background:linear-gradient(135deg,rgba(99,102,241,0.06),rgba(6,182,212,0.06)); border:1px solid rgba(99,102,241,0.12); border-radius:14px;">
         <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--primary-start); margin-bottom:0.75rem;">📋 Curriculum Parameters</div>
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:0.75rem; font-size:0.875rem;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:0.75rem; font-size:0.875rem;">
             <div><span style="color:var(--text-muted); font-size:0.75rem;">Subject</span><br><strong style="color:var(--text-heading);">${payload.skill}</strong></div>
             <div><span style="color:var(--text-muted); font-size:0.75rem;">Level</span><br><strong style="color:var(--text-heading);">${levelLabels[payload.level]}</strong></div>
             <div><span style="color:var(--text-muted); font-size:0.75rem;">Semesters</span><br><strong style="color:var(--text-heading);">${payload.semesters}</strong></div>
@@ -195,7 +195,7 @@ function renderOutput(result, payload) {
 
     // ── Professional Summary ─────────────────────────────────────
     html += `
-    <div style="margin-top:1.25rem; padding:1.25rem; border-left:4px solid var(--primary-start); background:white; border-radius:0 12px 12px 0; box-shadow:var(--shadow-sm);">
+    <div style="margin-top:1.25rem; padding:1.25rem; border-left:4px solid var(--primary-start); background:var(--surface); border-radius:0 12px 12px 0; box-shadow:var(--shadow-sm);">
         <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--primary-start); margin-bottom:0.4rem;">✨ Professional Summary</div>
         <div style="font-size:0.9375rem; color:var(--text-body); line-height:1.7;">${cur.summary}</div>
     </div>`;
@@ -239,14 +239,14 @@ function renderOutput(result, payload) {
                 </div>
             </div>`;
 
-        // Courses container — HORIZONTAL layout
+        // Courses container — RESPONSIVE GRID
         if (semester.courses && semester.courses.length > 0) {
-            html += `<div style="display:grid; grid-template-columns:repeat(${Math.min(semester.courses.length, 3)}, 1fr); gap:0.875rem;">`;
+            html += `<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:0.875rem;">`;
 
             semester.courses.forEach(course => {
                 const tagClr = tagColor(semester.number);
                 html += `
-                <div style="padding:1.125rem; border:1px solid var(--border); border-radius:12px; background:white; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; border-top:3px solid ${color.accent}; transition:transform 0.2s ease, box-shadow 0.2s ease;" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)';" onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-sm)';">
+                <div style="padding:1.125rem; border:1px solid var(--border); border-radius:12px; background:var(--surface); box-shadow:var(--shadow-sm); display:flex; flex-direction:column; border-top:3px solid ${color.accent}; transition:transform 0.2s ease, box-shadow 0.2s ease;" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)';" onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-sm)';">
                     
                     <!-- Course name -->
                     <div style="font-weight:700; color:var(--text-heading); font-size:0.875rem; margin-bottom:0.5rem; line-height:1.4;">

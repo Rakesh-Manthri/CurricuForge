@@ -8,6 +8,12 @@
     <meta name="description"
         content="Generate industry-ready educational curricula in seconds using IBM's Granite 3.3 2B AI model. Fully local, private, and tailored to your needs.">
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    <script>
+        (function () {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') document.documentElement.className = 'dark-mode';
+        })();
+    </script>
 </head>
 
 <body>
@@ -70,7 +76,7 @@
                             <div class="label">Local & Private</div>
                         </div>
                         <div class="hero-stat-item">
-                            <div class="value">2B</div>
+                            <div class="value">IBM Granite 3.3 2B</div>
                             <div class="label">Parameter Model</div>
                         </div>
                         <div class="hero-stat-item">
